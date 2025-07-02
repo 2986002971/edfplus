@@ -100,150 +100,149 @@
 <a href=#100 id=100 data-nosnippet>100</a>//!     Ok(())
 <a href=#101 id=101 data-nosnippet>101</a>//! }
 <a href=#102 id=102 data-nosnippet>102</a>//! ```
-<a href=#103 id=103 data-nosnippet>103</a>//!
-<a href=#104 id=104 data-nosnippet>104</a>//! ## Working with Signal Data
-<a href=#105 id=105 data-nosnippet>105</a>//!
-<a href=#106 id=106 data-nosnippet>106</a>//! ### Physical vs Digital Values
-<a href=#107 id=107 data-nosnippet>107</a>//!
-<a href=#108 id=108 data-nosnippet>108</a>//! EDF+ stores data as 16-bit integers but represents real-world measurements.
-<a href=#109 id=109 data-nosnippet>109</a>//! The library automatically handles conversion between digital and physical values:
-<a href=#110 id=110 data-nosnippet>110</a>//!
-<a href=#111 id=111 data-nosnippet>111</a>//! ```rust
-<a href=#112 id=112 data-nosnippet>112</a>//! use edfplus::SignalParam;
-<a href=#113 id=113 data-nosnippet>113</a>//!
-<a href=#114 id=114 data-nosnippet>114</a>//! let signal = SignalParam {
-<a href=#115 id=115 data-nosnippet>115</a>//!     label: "Test Signal".to_string(),
-<a href=#116 id=116 data-nosnippet>116</a>//!     samples_in_file: 1000,
-<a href=#117 id=117 data-nosnippet>117</a>//!     physical_max: 100.0,   // +100 µV
-<a href=#118 id=118 data-nosnippet>118</a>//!     physical_min: -100.0,  // -100 µV  
-<a href=#119 id=119 data-nosnippet>119</a>//!     digital_max: 32767,    // +32767 (16-bit max)
-<a href=#120 id=120 data-nosnippet>120</a>//!     digital_min: -32768,   // -32768 (16-bit min)
-<a href=#121 id=121 data-nosnippet>121</a>//!     samples_per_record: 256,
-<a href=#122 id=122 data-nosnippet>122</a>//!     physical_dimension: "uV".to_string(),
-<a href=#123 id=123 data-nosnippet>123</a>//!     prefilter: "".to_string(),
-<a href=#124 id=124 data-nosnippet>124</a>//!     transducer: "".to_string(),
-<a href=#125 id=125 data-nosnippet>125</a>//! };
-<a href=#126 id=126 data-nosnippet>126</a>//!
-<a href=#127 id=127 data-nosnippet>127</a>//! // Convert digital to physical
-<a href=#128 id=128 data-nosnippet>128</a>//! let digital_value = 16384;  // Half of max digital value
-<a href=#129 id=129 data-nosnippet>129</a>//! let physical_value = signal.to_physical(digital_value);
-<a href=#130 id=130 data-nosnippet>130</a>//! assert!((physical_value - 50.0).abs() &lt; 0.1); // Should be ~50 µV
-<a href=#131 id=131 data-nosnippet>131</a>//!
-<a href=#132 id=132 data-nosnippet>132</a>//! // Convert physical to digital  
-<a href=#133 id=133 data-nosnippet>133</a>//! let physical_input = 25.0;  // 25 µV
-<a href=#134 id=134 data-nosnippet>134</a>//! let digital_output = signal.to_digital(physical_input);
-<a href=#135 id=135 data-nosnippet>135</a>//! assert!((digital_output - 8192).abs() &lt;= 1); // Should be ~8192
-<a href=#136 id=136 data-nosnippet>136</a>//! ```
-<a href=#137 id=137 data-nosnippet>137</a>//! 
-<a href=#138 id=138 data-nosnippet>138</a>/// Adds an annotation/event to the EDF+ file
-<a href=#139 id=139 data-nosnippet>139</a>/// 
-<a href=#140 id=140 data-nosnippet>140</a>/// **⚠️ CRITICAL TIMING CONSTRAINT**
-<a href=#141 id=141 data-nosnippet>141</a>/// 
-<a href=#142 id=142 data-nosnippet>142</a>/// Annotations are only saved when their onset time falls within **future data records**.
-<a href=#143 id=143 data-nosnippet>143</a>/// Once a data record is written with `write_samples()`, no new annotations can be 
-<a href=#144 id=144 data-nosnippet>144</a>/// added to that time period.
-<a href=#145 id=145 data-nosnippet>145</a>/// 
-<a href=#146 id=146 data-nosnippet>146</a>/// **Timing Rules:**
-<a href=#147 id=147 data-nosnippet>147</a>/// - Add annotations **BEFORE** writing the data records that cover their time range
-<a href=#148 id=148 data-nosnippet>148</a>/// - Annotations with `onset_seconds` in already-written time periods will be **silently lost**
-<a href=#149 id=149 data-nosnippet>149</a>/// - This is due to the sequential write architecture - no backtracking is possible
-<a href=#150 id=150 data-nosnippet>150</a>/// 
-<a href=#151 id=151 data-nosnippet>151</a>/// # Arguments
-<a href=#152 id=152 data-nosnippet>152</a>/// 
-<a href=#153 id=153 data-nosnippet>153</a>/// * `onset_seconds` - Time when the event occurred (seconds since recording start)
-<a href=#154 id=154 data-nosnippet>154</a>/// * `duration_seconds` - Duration of the event in seconds (None for instantaneous events)  
-<a href=#155 id=155 data-nosnippet>155</a>/// * `description` - UTF-8 text describing the event (max 40 chars effective)
-<a href=#156 id=156 data-nosnippet>156</a>/// 
-<a href=#157 id=157 data-nosnippet>157</a>/// # Important Limitations
-<a href=#158 id=158 data-nosnippet>158</a>/// 
-<a href=#159 id=159 data-nosnippet>159</a>/// ## Description Length Limit
-<a href=#160 id=160 data-nosnippet>160</a>/// 
-<a href=#161 id=161 data-nosnippet>161</a>/// **Warning**: Annotation descriptions are subject to EDF+ format constraints:
-<a href=#162 id=162 data-nosnippet>162</a>/// - Maximum effective length is **40 characters** in the final TAL (Time-stamped Annotations Lists) data
-<a href=#163 id=163 data-nosnippet>163</a>/// - Longer descriptions will be **automatically truncated** during file writing
-<a href=#164 id=164 data-nosnippet>164</a>/// - UTF-8 multi-byte characters may be truncated at byte boundaries, potentially corrupting the text
-<a href=#165 id=165 data-nosnippet>165</a>/// - This limit is enforced by the EDF+ standard and matches edflib behavior
-<a href=#166 id=166 data-nosnippet>166</a>/// 
-<a href=#167 id=167 data-nosnippet>167</a>/// ```rust
-<a href=#168 id=168 data-nosnippet>168</a>/// // Write 5 seconds of data (5 records)
-<a href=#169 id=169 data-nosnippet>169</a>/// # use edfplus::{EdfWriter, SignalParam, Result};
-<a href=#170 id=170 data-nosnippet>170</a>/// # fn main() -&gt; Result&lt;()&gt; {
-<a href=#171 id=171 data-nosnippet>171</a>/// let mut writer = EdfWriter::create("annotations.edf")?;
-<a href=#172 id=172 data-nosnippet>172</a>/// # let signal = SignalParam {
-<a href=#173 id=173 data-nosnippet>173</a>/// #     label: "EEG".to_string(),
-<a href=#174 id=174 data-nosnippet>174</a>/// #     samples_in_file: 0,
-<a href=#175 id=175 data-nosnippet>175</a>/// #     physical_max: 100.0,
-<a href=#176 id=176 data-nosnippet>176</a>/// #     physical_min: -100.0,
-<a href=#177 id=177 data-nosnippet>177</a>/// #     digital_max: 32767,
-<a href=#178 id=178 data-nosnippet>178</a>/// #     digital_min: -32768,
-<a href=#179 id=179 data-nosnippet>179</a>/// #     samples_per_record: 256,
-<a href=#180 id=180 data-nosnippet>180</a>/// #     physical_dimension: "uV".to_string(),
-<a href=#181 id=181 data-nosnippet>181</a>/// #     prefilter: "".to_string(),
-<a href=#182 id=182 data-nosnippet>182</a>/// #     transducer: "".to_string(),
-<a href=#183 id=183 data-nosnippet>183</a>/// # };
-<a href=#184 id=184 data-nosnippet>184</a>/// # writer.add_signal(signal)?;
-<a href=#185 id=185 data-nosnippet>185</a>/// 
-<a href=#186 id=186 data-nosnippet>186</a>/// // ✅ Good - within file duration [0.0, 5.0)
-<a href=#187 id=187 data-nosnippet>187</a>/// writer.add_annotation(2.5, None, "Valid event")?;
-<a href=#188 id=188 data-nosnippet>188</a>/// writer.add_annotation(4.999, None, "Last moment")?;
-<a href=#189 id=189 data-nosnippet>189</a>/// 
-<a href=#190 id=190 data-nosnippet>190</a>/// // ❌ Lost - outside file duration
-<a href=#191 id=191 data-nosnippet>191</a>/// writer.add_annotation(5.0, None, "Will be discarded")?;
-<a href=#192 id=192 data-nosnippet>192</a>/// writer.add_annotation(6.0, None, "Also discarded")?;
-<a href=#193 id=193 data-nosnippet>193</a>/// 
-<a href=#194 id=194 data-nosnippet>194</a>/// for i in 0..5 {
-<a href=#195 id=195 data-nosnippet>195</a>///     let samples = vec![0.0; 256];
-<a href=#196 id=196 data-nosnippet>196</a>///     writer.write_samples(&amp;[samples])?;
-<a href=#197 id=197 data-nosnippet>197</a>/// }
-<a href=#198 id=198 data-nosnippet>198</a>/// # std::fs::remove_file("annotations.edf").ok();
-<a href=#199 id=199 data-nosnippet>199</a>/// # Ok(())
-<a href=#200 id=200 data-nosnippet>200</a>/// # }
-<a href=#201 id=201 data-nosnippet>201</a>/// ```
-<a href=#202 id=202 data-nosnippet>202</a>
-<a href=#203 id=203 data-nosnippet>203</a></span><span class="kw">pub mod </span>error;
-<a href=#204 id=204 data-nosnippet>204</a><span class="kw">pub mod </span>types;
-<a href=#205 id=205 data-nosnippet>205</a><span class="kw">pub mod </span>utils;
-<a href=#206 id=206 data-nosnippet>206</a><span class="kw">pub mod </span>reader;
-<a href=#207 id=207 data-nosnippet>207</a><span class="kw">pub mod </span>writer; <span class="comment">// 新增
-<a href=#208 id=208 data-nosnippet>208</a>
-<a href=#209 id=209 data-nosnippet>209</a></span><span class="attr">#[doc(hidden)]
-<a href=#210 id=210 data-nosnippet>210</a></span><span class="kw">pub mod </span>doctest_utils; <span class="comment">// For internal doctest support
-<a href=#211 id=211 data-nosnippet>211</a>
-<a href=#212 id=212 data-nosnippet>212</a>// Re-export main types for convenience
-<a href=#213 id=213 data-nosnippet>213</a></span><span class="kw">pub use </span>error::{EdfError, <span class="prelude-ty">Result</span>};
-<a href=#214 id=214 data-nosnippet>214</a><span class="kw">pub use </span>types::{EdfHeader, SignalParam, Annotation};
-<a href=#215 id=215 data-nosnippet>215</a><span class="kw">pub use </span>reader::EdfReader;
-<a href=#216 id=216 data-nosnippet>216</a><span class="kw">pub use </span>writer::EdfWriter; <span class="comment">// 新增
-<a href=#217 id=217 data-nosnippet>217</a>
-<a href=#218 id=218 data-nosnippet>218</a>// Important constants
-<a href=#219 id=219 data-nosnippet>219</a></span><span class="kw">pub const </span>EDFLIB_TIME_DIMENSION: i64 = <span class="number">10_000_000</span>; <span class="comment">// 100 nanoseconds unit
-<a href=#220 id=220 data-nosnippet>220</a></span><span class="kw">pub const </span>EDFLIB_MAXSIGNALS: usize = <span class="number">4096</span>;
-<a href=#221 id=221 data-nosnippet>221</a><span class="kw">pub const </span>EDFLIB_MAX_ANNOTATION_LEN: usize = <span class="number">512</span>;
-<a href=#222 id=222 data-nosnippet>222</a>
-<a href=#223 id=223 data-nosnippet>223</a><span class="doccomment">/// Library version
-<a href=#224 id=224 data-nosnippet>224</a>/// 
-<a href=#225 id=225 data-nosnippet>225</a>/// Returns the current version of the edfplus library.
-<a href=#226 id=226 data-nosnippet>226</a>///
-<a href=#227 id=227 data-nosnippet>227</a>/// # Examples
-<a href=#228 id=228 data-nosnippet>228</a>///
-<a href=#229 id=229 data-nosnippet>229</a>/// ```rust
-<a href=#230 id=230 data-nosnippet>230</a>/// use edfplus;
-<a href=#231 id=231 data-nosnippet>231</a>///
-<a href=#232 id=232 data-nosnippet>232</a>/// let version = edfplus::version();
-<a href=#233 id=233 data-nosnippet>233</a>/// assert!(!version.is_empty());
-<a href=#234 id=234 data-nosnippet>234</a>/// assert!(version.contains('.'));
-<a href=#235 id=235 data-nosnippet>235</a>/// println!("EDF+ library version: {}", version);
-<a href=#236 id=236 data-nosnippet>236</a>/// ```
-<a href=#237 id=237 data-nosnippet>237</a></span><span class="kw">pub fn </span>version() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
-<a href=#238 id=238 data-nosnippet>238</a>    <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>)
-<a href=#239 id=239 data-nosnippet>239</a>}
-<a href=#240 id=240 data-nosnippet>240</a>
-<a href=#241 id=241 data-nosnippet>241</a><span class="attr">#[cfg(test)]
-<a href=#242 id=242 data-nosnippet>242</a></span><span class="kw">mod </span>tests {
-<a href=#243 id=243 data-nosnippet>243</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
-<a href=#244 id=244 data-nosnippet>244</a>
-<a href=#245 id=245 data-nosnippet>245</a>    <span class="attr">#[test]
-<a href=#246 id=246 data-nosnippet>246</a>    </span><span class="kw">fn </span>test_version() {
-<a href=#247 id=247 data-nosnippet>247</a>        <span class="macro">assert!</span>(!version().is_empty());
-<a href=#248 id=248 data-nosnippet>248</a>    }
-<a href=#249 id=249 data-nosnippet>249</a>}</code></pre></div></section></main></body></html>
+<a href=#103 id=103 data-nosnippet>103</a>//! ### Adds an annotation/event to the EDF+ file
+<a href=#104 id=104 data-nosnippet>104</a>//! 
+<a href=#105 id=105 data-nosnippet>105</a>//! **⚠️ CRITICAL TIMING CONSTRAINT**
+<a href=#106 id=106 data-nosnippet>106</a>//! 
+<a href=#107 id=107 data-nosnippet>107</a>//! Annotations are only saved when their onset time falls within **future data records**.
+<a href=#108 id=108 data-nosnippet>108</a>//! Once a data record is written with `write_samples()`, no new annotations can be 
+<a href=#109 id=109 data-nosnippet>109</a>//! added to that time period.
+<a href=#110 id=110 data-nosnippet>110</a>//! 
+<a href=#111 id=111 data-nosnippet>111</a>//! **Timing Rules:**
+<a href=#112 id=112 data-nosnippet>112</a>//! - Add annotations **BEFORE** writing the data records that cover their time range
+<a href=#113 id=113 data-nosnippet>113</a>//! - Annotations with `onset_seconds` in already-written time periods will be **silently lost**
+<a href=#114 id=114 data-nosnippet>114</a>//! - This is due to the sequential write architecture - no backtracking is possible
+<a href=#115 id=115 data-nosnippet>115</a>//! 
+<a href=#116 id=116 data-nosnippet>116</a>//! ##### Arguments
+<a href=#117 id=117 data-nosnippet>117</a>//! 
+<a href=#118 id=118 data-nosnippet>118</a>//! * `onset_seconds` - Time when the event occurred (seconds since recording start)
+<a href=#119 id=119 data-nosnippet>119</a>//! * `duration_seconds` - Duration of the event in seconds (None for instantaneous events)  
+<a href=#120 id=120 data-nosnippet>120</a>//! * `description` - UTF-8 text describing the event (max 40 chars effective)
+<a href=#121 id=121 data-nosnippet>121</a>//! 
+<a href=#122 id=122 data-nosnippet>122</a>//! ##### Description Length Limit
+<a href=#123 id=123 data-nosnippet>123</a>//! 
+<a href=#124 id=124 data-nosnippet>124</a>//! **Warning**: Annotation descriptions are subject to EDF+ format constraints:
+<a href=#125 id=125 data-nosnippet>125</a>//! - Maximum effective length is **40 characters** in the final TAL (Time-stamped Annotations Lists) data
+<a href=#126 id=126 data-nosnippet>126</a>//! - Longer descriptions will be **automatically truncated** during file writing
+<a href=#127 id=127 data-nosnippet>127</a>//! - UTF-8 multi-byte characters may be truncated at byte boundaries, potentially corrupting the text
+<a href=#128 id=128 data-nosnippet>128</a>//! - This limit is enforced by the EDF+ standard and matches edflib behavior
+<a href=#129 id=129 data-nosnippet>129</a>//! 
+<a href=#130 id=130 data-nosnippet>130</a>//! ```rust
+<a href=#131 id=131 data-nosnippet>131</a>//! // Write 5 seconds of data (5 records)
+<a href=#132 id=132 data-nosnippet>132</a>//! # use edfplus::{EdfWriter, SignalParam, Result};
+<a href=#133 id=133 data-nosnippet>133</a>//! # fn main() -&gt; Result&lt;()&gt; {
+<a href=#134 id=134 data-nosnippet>134</a>//! let mut writer = EdfWriter::create("annotations.edf")?;
+<a href=#135 id=135 data-nosnippet>135</a>//! # let signal = SignalParam {
+<a href=#136 id=136 data-nosnippet>136</a>//! #     label: "EEG".to_string(),
+<a href=#137 id=137 data-nosnippet>137</a>//! #     samples_in_file: 0,
+<a href=#138 id=138 data-nosnippet>138</a>//! #     physical_max: 100.0,
+<a href=#139 id=139 data-nosnippet>139</a>//! #     physical_min: -100.0,
+<a href=#140 id=140 data-nosnippet>140</a>//! #     digital_max: 32767,
+<a href=#141 id=141 data-nosnippet>141</a>//! #     digital_min: -32768,
+<a href=#142 id=142 data-nosnippet>142</a>//! #     samples_per_record: 256,
+<a href=#143 id=143 data-nosnippet>143</a>//! #     physical_dimension: "uV".to_string(),
+<a href=#144 id=144 data-nosnippet>144</a>//! #     prefilter: "".to_string(),
+<a href=#145 id=145 data-nosnippet>145</a>//! #     transducer: "".to_string(),
+<a href=#146 id=146 data-nosnippet>146</a>//! # };
+<a href=#147 id=147 data-nosnippet>147</a>//! # writer.add_signal(signal)?;
+<a href=#148 id=148 data-nosnippet>148</a>//! 
+<a href=#149 id=149 data-nosnippet>149</a>//! // ✅ Good - within file duration [0.0, 5.0)
+<a href=#150 id=150 data-nosnippet>150</a>//! writer.add_annotation(2.5, None, "Valid event")?;
+<a href=#151 id=151 data-nosnippet>151</a>//! writer.add_annotation(4.999, None, "Last moment")?;
+<a href=#152 id=152 data-nosnippet>152</a>//! 
+<a href=#153 id=153 data-nosnippet>153</a>//! // ❌ Lost - outside file duration
+<a href=#154 id=154 data-nosnippet>154</a>//! writer.add_annotation(5.0, None, "Will be discarded")?;
+<a href=#155 id=155 data-nosnippet>155</a>//! writer.add_annotation(6.0, None, "Also discarded")?;
+<a href=#156 id=156 data-nosnippet>156</a>//! 
+<a href=#157 id=157 data-nosnippet>157</a>//! for i in 0..5 {
+<a href=#158 id=158 data-nosnippet>158</a>//!     let samples = vec![0.0; 256];
+<a href=#159 id=159 data-nosnippet>159</a>//!     writer.write_samples(&amp;[samples])?;
+<a href=#160 id=160 data-nosnippet>160</a>//! }
+<a href=#161 id=161 data-nosnippet>161</a>//! # std::fs::remove_file("annotations.edf").ok();
+<a href=#162 id=162 data-nosnippet>162</a>//! # Ok(())
+<a href=#163 id=163 data-nosnippet>163</a>//! # }
+<a href=#164 id=164 data-nosnippet>164</a>//! ```
+<a href=#165 id=165 data-nosnippet>165</a>//! 
+<a href=#166 id=166 data-nosnippet>166</a>//! ## Working with Signal Data
+<a href=#167 id=167 data-nosnippet>167</a>//!
+<a href=#168 id=168 data-nosnippet>168</a>//! ### Physical vs Digital Values
+<a href=#169 id=169 data-nosnippet>169</a>//!
+<a href=#170 id=170 data-nosnippet>170</a>//! EDF+ stores data as 16-bit integers but represents real-world measurements.
+<a href=#171 id=171 data-nosnippet>171</a>//! The library automatically handles conversion between digital and physical values:
+<a href=#172 id=172 data-nosnippet>172</a>//!
+<a href=#173 id=173 data-nosnippet>173</a>//! ```rust
+<a href=#174 id=174 data-nosnippet>174</a>//! use edfplus::SignalParam;
+<a href=#175 id=175 data-nosnippet>175</a>//!
+<a href=#176 id=176 data-nosnippet>176</a>//! let signal = SignalParam {
+<a href=#177 id=177 data-nosnippet>177</a>//!     label: "Test Signal".to_string(),
+<a href=#178 id=178 data-nosnippet>178</a>//!     samples_in_file: 1000,
+<a href=#179 id=179 data-nosnippet>179</a>//!     physical_max: 100.0,   // +100 µV
+<a href=#180 id=180 data-nosnippet>180</a>//!     physical_min: -100.0,  // -100 µV  
+<a href=#181 id=181 data-nosnippet>181</a>//!     digital_max: 32767,    // +32767 (16-bit max)
+<a href=#182 id=182 data-nosnippet>182</a>//!     digital_min: -32768,   // -32768 (16-bit min)
+<a href=#183 id=183 data-nosnippet>183</a>//!     samples_per_record: 256,
+<a href=#184 id=184 data-nosnippet>184</a>//!     physical_dimension: "uV".to_string(),
+<a href=#185 id=185 data-nosnippet>185</a>//!     prefilter: "".to_string(),
+<a href=#186 id=186 data-nosnippet>186</a>//!     transducer: "".to_string(),
+<a href=#187 id=187 data-nosnippet>187</a>//! };
+<a href=#188 id=188 data-nosnippet>188</a>//!
+<a href=#189 id=189 data-nosnippet>189</a>//! // Convert digital to physical
+<a href=#190 id=190 data-nosnippet>190</a>//! let digital_value = 16384;  // Half of max digital value
+<a href=#191 id=191 data-nosnippet>191</a>//! let physical_value = signal.to_physical(digital_value);
+<a href=#192 id=192 data-nosnippet>192</a>//! assert!((physical_value - 50.0).abs() &lt; 0.1); // Should be ~50 µV
+<a href=#193 id=193 data-nosnippet>193</a>//!
+<a href=#194 id=194 data-nosnippet>194</a>//! // Convert physical to digital  
+<a href=#195 id=195 data-nosnippet>195</a>//! let physical_input = 25.0;  // 25 µV
+<a href=#196 id=196 data-nosnippet>196</a>//! let digital_output = signal.to_digital(physical_input);
+<a href=#197 id=197 data-nosnippet>197</a>//! assert!((digital_output - 8192).abs() &lt;= 1); // Should be ~8192
+<a href=#198 id=198 data-nosnippet>198</a>//! ```
+<a href=#199 id=199 data-nosnippet>199</a>
+<a href=#200 id=200 data-nosnippet>200</a>
+<a href=#201 id=201 data-nosnippet>201</a>
+<a href=#202 id=202 data-nosnippet>202</a></span><span class="kw">pub mod </span>error;
+<a href=#203 id=203 data-nosnippet>203</a><span class="kw">pub mod </span>types;
+<a href=#204 id=204 data-nosnippet>204</a><span class="kw">pub mod </span>utils;
+<a href=#205 id=205 data-nosnippet>205</a><span class="kw">pub mod </span>reader;
+<a href=#206 id=206 data-nosnippet>206</a><span class="kw">pub mod </span>writer; <span class="comment">// 新增
+<a href=#207 id=207 data-nosnippet>207</a>
+<a href=#208 id=208 data-nosnippet>208</a></span><span class="attr">#[doc(hidden)]
+<a href=#209 id=209 data-nosnippet>209</a></span><span class="kw">pub mod </span>doctest_utils; <span class="comment">// For internal doctest support
+<a href=#210 id=210 data-nosnippet>210</a>
+<a href=#211 id=211 data-nosnippet>211</a>// Re-export main types for convenience
+<a href=#212 id=212 data-nosnippet>212</a></span><span class="kw">pub use </span>error::{EdfError, <span class="prelude-ty">Result</span>};
+<a href=#213 id=213 data-nosnippet>213</a><span class="kw">pub use </span>types::{EdfHeader, SignalParam, Annotation};
+<a href=#214 id=214 data-nosnippet>214</a><span class="kw">pub use </span>reader::EdfReader;
+<a href=#215 id=215 data-nosnippet>215</a><span class="kw">pub use </span>writer::EdfWriter; <span class="comment">// 新增
+<a href=#216 id=216 data-nosnippet>216</a>
+<a href=#217 id=217 data-nosnippet>217</a>// Important constants
+<a href=#218 id=218 data-nosnippet>218</a></span><span class="kw">pub const </span>EDFLIB_TIME_DIMENSION: i64 = <span class="number">10_000_000</span>; <span class="comment">// 100 nanoseconds unit
+<a href=#219 id=219 data-nosnippet>219</a></span><span class="kw">pub const </span>EDFLIB_MAXSIGNALS: usize = <span class="number">4096</span>;
+<a href=#220 id=220 data-nosnippet>220</a><span class="kw">pub const </span>EDFLIB_MAX_ANNOTATION_LEN: usize = <span class="number">512</span>;
+<a href=#221 id=221 data-nosnippet>221</a>
+<a href=#222 id=222 data-nosnippet>222</a><span class="doccomment">/// Library version
+<a href=#223 id=223 data-nosnippet>223</a>/// 
+<a href=#224 id=224 data-nosnippet>224</a>/// Returns the current version of the edfplus library.
+<a href=#225 id=225 data-nosnippet>225</a>///
+<a href=#226 id=226 data-nosnippet>226</a>/// # Examples
+<a href=#227 id=227 data-nosnippet>227</a>///
+<a href=#228 id=228 data-nosnippet>228</a>/// ```rust
+<a href=#229 id=229 data-nosnippet>229</a>/// use edfplus;
+<a href=#230 id=230 data-nosnippet>230</a>///
+<a href=#231 id=231 data-nosnippet>231</a>/// let version = edfplus::version();
+<a href=#232 id=232 data-nosnippet>232</a>/// assert!(!version.is_empty());
+<a href=#233 id=233 data-nosnippet>233</a>/// assert!(version.contains('.'));
+<a href=#234 id=234 data-nosnippet>234</a>/// println!("EDF+ library version: {}", version);
+<a href=#235 id=235 data-nosnippet>235</a>/// ```
+<a href=#236 id=236 data-nosnippet>236</a></span><span class="kw">pub fn </span>version() -&gt; <span class="kw-2">&amp;</span><span class="lifetime">'static </span>str {
+<a href=#237 id=237 data-nosnippet>237</a>    <span class="macro">env!</span>(<span class="string">"CARGO_PKG_VERSION"</span>)
+<a href=#238 id=238 data-nosnippet>238</a>}
+<a href=#239 id=239 data-nosnippet>239</a>
+<a href=#240 id=240 data-nosnippet>240</a><span class="attr">#[cfg(test)]
+<a href=#241 id=241 data-nosnippet>241</a></span><span class="kw">mod </span>tests {
+<a href=#242 id=242 data-nosnippet>242</a>    <span class="kw">use super</span>::<span class="kw-2">*</span>;
+<a href=#243 id=243 data-nosnippet>243</a>
+<a href=#244 id=244 data-nosnippet>244</a>    <span class="attr">#[test]
+<a href=#245 id=245 data-nosnippet>245</a>    </span><span class="kw">fn </span>test_version() {
+<a href=#246 id=246 data-nosnippet>246</a>        <span class="macro">assert!</span>(!version().is_empty());
+<a href=#247 id=247 data-nosnippet>247</a>    }
+<a href=#248 id=248 data-nosnippet>248</a>}</code></pre></div></section></main></body></html>
