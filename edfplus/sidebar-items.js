@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["EDFLIB_MAXSIGNALS","EDFLIB_MAX_ANNOTATION_LEN","EDFLIB_TIME_DIMENSION"],"fn":["version"],"mod":["error","reader","types","utils","writer"]};

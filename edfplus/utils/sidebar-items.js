@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["atof_nonlocalized","atoi_nonlocalized","is_integer_number","is_number","parse_edf_time","trim_padding_spaces"]};

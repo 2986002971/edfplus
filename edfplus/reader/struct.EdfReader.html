@@ -1,0 +1,287 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="EDF+ file reader for reading European Data Format Plus files"><title>EdfReader in edfplus::reader - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="edfplus" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc struct"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../edfplus/index.html">edfplus</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">EdfReader</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#basic-usage" title="Basic usage">Basic usage</a></li><li><a href="#processing-all-signals" title="Processing all signals">Processing all signals</a></li></ul></li></ul><h3><a href="#implementations">Methods</a></h3><ul class="block method"><li><a href="#method.annotations" title="annotations">annotations</a></li><li><a href="#method.header" title="header">header</a></li><li><a href="#method.open" title="open">open</a></li><li><a href="#method.read_digital_samples" title="read_digital_samples">read_digital_samples</a></li><li><a href="#method.read_physical_samples" title="read_physical_samples">read_physical_samples</a></li><li><a href="#method.rewind" title="rewind">rewind</a></li><li><a href="#method.seek" title="seek">seek</a></li><li><a href="#method.tell" title="tell">tell</a></li></ul><h3><a href="#synthetic-implementations">Auto Trait Implementations</a></h3><ul class="block synthetic-implementation"><li><a href="#impl-Freeze-for-EdfReader" title="Freeze">Freeze</a></li><li><a href="#impl-RefUnwindSafe-for-EdfReader" title="RefUnwindSafe">RefUnwindSafe</a></li><li><a href="#impl-Send-for-EdfReader" title="Send">Send</a></li><li><a href="#impl-Sync-for-EdfReader" title="Sync">Sync</a></li><li><a href="#impl-Unpin-for-EdfReader" title="Unpin">Unpin</a></li><li><a href="#impl-UnwindSafe-for-EdfReader" title="UnwindSafe">UnwindSafe</a></li></ul><h3><a href="#blanket-implementations">Blanket Implementations</a></h3><ul class="block blanket-implementation"><li><a href="#impl-Any-for-T" title="Any">Any</a></li><li><a href="#impl-Borrow%3CT%3E-for-T" title="Borrow&#60;T&#62;">Borrow&#60;T&#62;</a></li><li><a href="#impl-BorrowMut%3CT%3E-for-T" title="BorrowMut&#60;T&#62;">BorrowMut&#60;T&#62;</a></li><li><a href="#impl-From%3CT%3E-for-T" title="From&#60;T&#62;">From&#60;T&#62;</a></li><li><a href="#impl-Into%3CU%3E-for-T" title="Into&#60;U&#62;">Into&#60;U&#62;</a></li><li><a href="#impl-TryFrom%3CU%3E-for-T" title="TryFrom&#60;U&#62;">TryFrom&#60;U&#62;</a></li><li><a href="#impl-TryInto%3CU%3E-for-T" title="TryInto&#60;U&#62;">TryInto&#60;U&#62;</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In edfplus::<wbr>reader</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">edfplus</a>::<wbr><a href="index.html">reader</a></div><h1>Struct <span class="struct">EdfReader</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/edfplus/reader.rs.html#86-99">Source</a> </span></div><pre class="rust item-decl"><code>pub struct EdfReader { <span class="comment">/* private fields */</span> }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>EDF+ file reader for reading European Data Format Plus files</p>
+<p>The <code>EdfReader</code> provides methods to open and read EDF+ files, which are
+commonly used for storing biosignal recordings like EEG, ECG, EMG, etc.</p>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2><h3 id="basic-usage"><a class="doc-anchor" href="#basic-usage">§</a>Basic usage</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfReader;
+ 
+<span class="comment">// Open an EDF+ file
+</span><span class="kw">let </span><span class="kw-2">mut </span>reader = EdfReader::open(<span class="string">"recording.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Get header information
+</span><span class="kw">let </span>header = reader.header();
+<span class="macro">println!</span>(<span class="string">"Duration: {:.1} seconds"</span>, header.file_duration <span class="kw">as </span>f64 / <span class="number">10_000_000.0</span>);
+<span class="macro">println!</span>(<span class="string">"Signals: {}"</span>, header.signals.len());
+ 
+<span class="comment">// Read physical samples from first signal
+</span><span class="kw">let </span>samples = reader.read_physical_samples(<span class="number">0</span>, <span class="number">256</span>)<span class="question-mark">?</span>;
+<span class="macro">println!</span>(<span class="string">"Read {} samples"</span>, samples.len());
+ </code></pre></div>
+<h3 id="processing-all-signals"><a class="doc-anchor" href="#processing-all-signals">§</a>Processing all signals</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfReader;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>reader = EdfReader::open(<span class="string">"multi_signal.edf"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>signal_count = reader.header().signals.len();
+ 
+<span class="comment">// Process each signal
+</span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..signal_count {
+    <span class="kw">let </span>signal_label = reader.header().signals[i].label.clone();
+    <span class="kw">let </span>signal_dimension = reader.header().signals[i].physical_dimension.clone();
+    <span class="kw">let </span>samples_per_second = reader.header().signals[i].samples_per_record <span class="kw">as </span>usize;
+     
+    <span class="macro">println!</span>(<span class="string">"Processing signal {}: {}"</span>, i, signal_label);
+     
+    <span class="comment">// Read one second of data (assuming 256 Hz sampling rate)
+    </span><span class="kw">let </span>physical_values = reader.read_physical_samples(i, samples_per_second)<span class="question-mark">?</span>;
+     
+    <span class="comment">// Calculate basic statistics
+    </span><span class="kw">let </span>mean = physical_values.iter().sum::&lt;f64&gt;() / physical_values.len() <span class="kw">as </span>f64;
+    <span class="kw">let </span>max = physical_values.iter().fold(f64::NEG_INFINITY, |a, <span class="kw-2">&amp;</span>b| a.max(b));
+    <span class="kw">let </span>min = physical_values.iter().fold(f64::INFINITY, |a, <span class="kw-2">&amp;</span>b| a.min(b));
+     
+    <span class="macro">println!</span>(<span class="string">"  Mean: {:.2} {}"</span>, mean, signal_dimension);
+    <span class="macro">println!</span>(<span class="string">"  Range: {:.2} to {:.2} {}"</span>, min, max, signal_dimension);
+}
+ </code></pre></div>
+</div></details><h2 id="implementations" class="section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-EdfReader" class="impl"><a class="src rightside" href="../../src/edfplus/reader.rs.html#111-1614">Source</a><a href="#impl-EdfReader" class="anchor">§</a><h3 class="code-header">impl <a class="struct" href="struct.EdfReader.html" title="struct edfplus::reader::EdfReader">EdfReader</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.open" class="method"><a class="src rightside" href="../../src/edfplus/reader.rs.html#165-210">Source</a><h4 class="code-header">pub fn <a href="#method.open" class="fn">open</a>&lt;P: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.AsRef.html" title="trait core::convert::AsRef">AsRef</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.87.0/std/path/struct.Path.html" title="struct std::path::Path">Path</a>&gt;&gt;(path: P) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;Self&gt;</h4></section></summary><div class="docblock"><p>Opens an EDF+ file for reading</p>
+<p>This method opens the specified file, validates it as a proper EDF+ file,
+and parses the header information. Only EDF+ format is supported.</p>
+<h5 id="arguments"><a class="doc-anchor" href="#arguments">§</a>Arguments</h5>
+<ul>
+<li><code>path</code> - Path to the EDF+ file to open</li>
+</ul>
+<h5 id="returns"><a class="doc-anchor" href="#returns">§</a>Returns</h5>
+<p>Returns a <code>Result&lt;EdfReader, EdfError&gt;</code>. On success, contains an <code>EdfReader</code>
+instance ready for reading data. On failure, contains an error describing
+what went wrong.</p>
+<h5 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::FileNotFound</code> - File doesn’t exist or can’t be opened</li>
+<li><code>EdfError::UnsupportedFileType</code> - File is not EDF+ format</li>
+<li><code>EdfError::InvalidHeader</code> - File header is corrupted or invalid</li>
+<li><code>EdfError::InvalidSignalCount</code> - Invalid number of signals</li>
+</ul>
+<h5 id="examples-1"><a class="doc-anchor" href="#examples-1">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfReader;
+ 
+<span class="comment">// Open a file successfully
+</span><span class="kw">match </span>EdfReader::open(<span class="string">"recording.edf"</span>) {
+    <span class="prelude-val">Ok</span>(reader) =&gt; {
+        <span class="macro">println!</span>(<span class="string">"File opened successfully!"</span>);
+        <span class="macro">println!</span>(<span class="string">"Duration: {:.1} seconds"</span>, 
+            reader.header().file_duration <span class="kw">as </span>f64 / <span class="number">10_000_000.0</span>);
+    }
+    <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">eprintln!</span>(<span class="string">"Failed to open file: {}"</span>, e),
+}
+ 
+<span class="comment">// Handle different error types
+</span><span class="kw">match </span>EdfReader::open(<span class="string">"nonexistent.edf"</span>) {
+    <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">println!</span>(<span class="string">"Unexpected success"</span>),
+    <span class="prelude-val">Err</span>(edfplus::EdfError::FileNotFound(msg)) =&gt; {
+        <span class="macro">println!</span>(<span class="string">"File not found: {}"</span>, msg);
+    }
+    <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">println!</span>(<span class="string">"Other error: {}"</span>, e),
+}
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.header" class="method"><a class="src rightside" href="../../src/edfplus/reader.rs.html#250-252">Source</a><h4 class="code-header">pub fn <a href="#method.header" class="fn">header</a>(&amp;self) -&gt; &amp;<a class="struct" href="../types/struct.EdfHeader.html" title="struct edfplus::types::EdfHeader">EdfHeader</a></h4></section></summary><div class="docblock"><p>Gets a reference to the file header information</p>
+<p>The header contains all metadata about the recording including:</p>
+<ul>
+<li>Patient information (name, code, birth date, etc.)</li>
+<li>Recording information (start time, duration, equipment, etc.)</li>
+<li>Signal parameters (labels, sampling rates, physical ranges, etc.)</li>
+<li>File format details</li>
+</ul>
+<h5 id="examples-2"><a class="doc-anchor" href="#examples-2">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfReader;
+ 
+<span class="kw">let </span>reader = EdfReader::open(<span class="string">"recording.edf"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>header = reader.header();
+ 
+<span class="comment">// Display basic file information
+</span><span class="macro">println!</span>(<span class="string">"Patient: {}"</span>, header.patient_name);
+<span class="macro">println!</span>(<span class="string">"Recording duration: {:.2} seconds"</span>, 
+    header.file_duration <span class="kw">as </span>f64 / <span class="number">10_000_000.0</span>);
+<span class="macro">println!</span>(<span class="string">"Number of signals: {}"</span>, header.signals.len());
+ 
+<span class="comment">// Display signal information
+</span><span class="kw">for </span>(i, signal) <span class="kw">in </span>header.signals.iter().enumerate() {
+    <span class="macro">println!</span>(<span class="string">"Signal {}: {} ({})"</span>, 
+        i, signal.label, signal.physical_dimension);
+    <span class="macro">println!</span>(<span class="string">"  Sample rate: {} Hz"</span>, signal.samples_per_record);
+    <span class="macro">println!</span>(<span class="string">"  Range: {} to {} {}"</span>, 
+        signal.physical_min, signal.physical_max, signal.physical_dimension);
+}
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.annotations" class="method"><a class="src rightside" href="../../src/edfplus/reader.rs.html#307-309">Source</a><h4 class="code-header">pub fn <a href="#method.annotations" class="fn">annotations</a>(&amp;self) -&gt; &amp;[<a class="struct" href="../types/struct.Annotation.html" title="struct edfplus::types::Annotation">Annotation</a>]</h4></section></summary><div class="docblock"><p>Gets a reference to the list of annotations in the file</p>
+<p>Annotations represent events, markers, and metadata that occurred
+during the recording. Common examples include sleep stages, seizures,
+artifacts, stimuli, and user-defined events.</p>
+<h5 id="examples-3"><a class="doc-anchor" href="#examples-3">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfReader, EdfWriter, SignalParam, Annotation};
+ 
+ 
+<span class="kw">let </span>reader = EdfReader::open(<span class="string">"test_annotations.edf"</span>).unwrap();
+<span class="kw">let </span>annotations = reader.annotations();
+ 
+<span class="macro">println!</span>(<span class="string">"Found {} annotations"</span>, annotations.len());
+ 
+<span class="kw">for </span>(i, annotation) <span class="kw">in </span>annotations.iter().enumerate() {
+    <span class="kw">let </span>onset_seconds = annotation.onset <span class="kw">as </span>f64 / <span class="number">10_000_000.0</span>;
+    <span class="kw">let </span>duration_seconds = <span class="kw">if </span>annotation.duration &gt;= <span class="number">0 </span>{
+        annotation.duration <span class="kw">as </span>f64 / <span class="number">10_000_000.0
+    </span>} <span class="kw">else </span>{
+        <span class="number">0.0  </span><span class="comment">// Instantaneous event
+    </span>};
+     
+    <span class="macro">println!</span>(<span class="string">"Annotation {}: {} at {:.2}s (duration: {:.2}s)"</span>,
+        i, annotation.description, onset_seconds, duration_seconds);
+}
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.read_physical_samples" class="method"><a class="src rightside" href="../../src/edfplus/reader.rs.html#396-410">Source</a><h4 class="code-header">pub fn <a href="#method.read_physical_samples" class="fn">read_physical_samples</a>(
+    &amp;mut self,
+    signal: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>,
+    count: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>,
+) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.87.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.f64.html">f64</a>&gt;&gt;</h4></section></summary><div class="docblock"><p>Reads physical value samples from the specified signal</p>
+<p>Physical values are the real-world measurements (e.g., microvolts for EEG,
+millivolts for ECG) as opposed to the raw digital values stored in the file.
+The conversion from digital to physical values is performed automatically
+using the signal’s calibration parameters.</p>
+<h5 id="arguments-1"><a class="doc-anchor" href="#arguments-1">§</a>Arguments</h5>
+<ul>
+<li><code>signal</code> - Zero-based index of the signal to read from</li>
+<li><code>count</code> - Number of samples to read</li>
+</ul>
+<h5 id="returns-1"><a class="doc-anchor" href="#returns-1">§</a>Returns</h5>
+<p>Vector of physical values in the signal’s physical dimension (e.g., µV, mV).</p>
+<h5 id="errors-1"><a class="doc-anchor" href="#errors-1">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::InvalidSignalIndex</code> - Signal index is out of bounds</li>
+<li><code>EdfError::FileReadError</code> - I/O error reading from file</li>
+</ul>
+<h5 id="examples-4"><a class="doc-anchor" href="#examples-4">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfReader;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>reader = EdfReader::open(<span class="string">"eeg_recording.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Read 1 second of EEG data (assuming 256 Hz)
+</span><span class="kw">let </span>samples = reader.read_physical_samples(<span class="number">0</span>, <span class="number">256</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Get header after reading samples
+</span><span class="kw">let </span>header = reader.header();
+ 
+<span class="comment">// Calculate basic statistics
+</span><span class="kw">let </span>mean = samples.iter().sum::&lt;f64&gt;() / samples.len() <span class="kw">as </span>f64;
+<span class="kw">let </span>max_value = samples.iter().fold(f64::NEG_INFINITY, |a, <span class="kw-2">&amp;</span>b| a.max(b));
+<span class="kw">let </span>min_value = samples.iter().fold(f64::INFINITY, |a, <span class="kw-2">&amp;</span>b| a.min(b));
+ 
+<span class="macro">println!</span>(<span class="string">"Signal: {}"</span>, header.signals[<span class="number">0</span>].label);
+<span class="macro">println!</span>(<span class="string">"Mean: {:.2} {}"</span>, mean, header.signals[<span class="number">0</span>].physical_dimension);
+<span class="macro">println!</span>(<span class="string">"Range: {:.2} to {:.2} {}"</span>, 
+    min_value, max_value, header.signals[<span class="number">0</span>].physical_dimension);
+ </code></pre></div>
+<h6 id="processing-multiple-signals"><a class="doc-anchor" href="#processing-multiple-signals">§</a>Processing multiple signals</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfReader;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>reader = EdfReader::open(<span class="string">"multi_channel.edf"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>signal_count = reader.header().signals.len();
+ 
+<span class="comment">// Read data from all signals  
+</span><span class="kw">for </span>signal_idx <span class="kw">in </span><span class="number">0</span>..signal_count {
+    <span class="kw">let </span>signal_label = reader.header().signals[signal_idx].label.clone();
+    <span class="kw">let </span>signal_dimension = reader.header().signals[signal_idx].physical_dimension.clone();
+    <span class="kw">let </span>samples_per_record = reader.header().signals[signal_idx].samples_per_record <span class="kw">as </span>usize;
+     
+    <span class="comment">// Read one record worth of data (safe amount)
+    </span><span class="kw">let </span>samples = reader.read_physical_samples(signal_idx, samples_per_record)<span class="question-mark">?</span>;
+     
+    <span class="macro">println!</span>(<span class="string">"Signal {}: {} samples from {}"</span>, 
+        signal_label, samples.len(), signal_dimension);
+         
+    <span class="comment">// Find peak-to-peak amplitude
+    </span><span class="kw">let </span>max = samples.iter().fold(f64::NEG_INFINITY, |a, <span class="kw-2">&amp;</span>b| a.max(b));
+    <span class="kw">let </span>min = samples.iter().fold(f64::INFINITY, |a, <span class="kw-2">&amp;</span>b| a.min(b));
+    <span class="macro">println!</span>(<span class="string">"  Amplitude: {:.2} {}"</span>, max - min, signal_dimension);
+}
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.read_digital_samples" class="method"><a class="src rightside" href="../../src/edfplus/reader.rs.html#501-587">Source</a><h4 class="code-header">pub fn <a href="#method.read_digital_samples" class="fn">read_digital_samples</a>(
+    &amp;mut self,
+    signal: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>,
+    count: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>,
+) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.87.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i32.html">i32</a>&gt;&gt;</h4></section></summary><div class="docblock"><p>Reads digital value samples from the specified signal</p>
+<p>Digital values are the raw integer values stored in the EDF+ file,
+before conversion to physical units. These are typically 16-bit
+signed integers representing the ADC output.</p>
+<p>Most users should use <code>read_physical_samples()</code> instead, which
+automatically converts to real-world units.</p>
+<h5 id="arguments-2"><a class="doc-anchor" href="#arguments-2">§</a>Arguments</h5>
+<ul>
+<li><code>signal</code> - Zero-based index of the signal to read from</li>
+<li><code>count</code> - Number of samples to read</li>
+</ul>
+<h5 id="returns-2"><a class="doc-anchor" href="#returns-2">§</a>Returns</h5>
+<p>Vector of digital values as signed 32-bit integers.</p>
+<h5 id="errors-2"><a class="doc-anchor" href="#errors-2">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::InvalidSignalIndex</code> - Signal index is out of bounds</li>
+<li><code>EdfError::FileReadError</code> - I/O error reading from file</li>
+</ul>
+<h5 id="examples-5"><a class="doc-anchor" href="#examples-5">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfReader;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>reader = EdfReader::open(<span class="string">"recording.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Read raw digital values
+</span><span class="kw">let </span>digital_samples = reader.read_digital_samples(<span class="number">0</span>, <span class="number">100</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Get header after reading
+</span><span class="kw">let </span>header = reader.header();
+<span class="kw">let </span>signal = <span class="kw-2">&amp;</span>header.signals[<span class="number">0</span>];
+ 
+<span class="comment">// Manual conversion to physical values
+</span><span class="kw">let </span>physical_samples: Vec&lt;f64&gt; = digital_samples
+    .iter()
+    .map(|<span class="kw-2">&amp;</span>d| signal.to_physical(d))
+    .collect();
+ 
+<span class="macro">println!</span>(<span class="string">"Digital range: {} to {}"</span>, 
+    digital_samples.iter().min().unwrap(),
+    digital_samples.iter().max().unwrap());
+ </code></pre></div>
+<h6 id="checking-digital-value-ranges"><a class="doc-anchor" href="#checking-digital-value-ranges">§</a>Checking digital value ranges</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfReader;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>reader = EdfReader::open(<span class="string">"test.edf"</span>)<span class="question-mark">?</span>;
+<span class="kw">let </span>signal_count = reader.header().signals.len();
+ 
+<span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..signal_count {
+    <span class="kw">let </span>signal_label = reader.header().signals[i].label.clone();
+    <span class="kw">let </span>digital_min = reader.header().signals[i].digital_min;
+    <span class="kw">let </span>digital_max = reader.header().signals[i].digital_max;
+     
+    <span class="kw">let </span>samples = reader.read_digital_samples(i, <span class="number">10</span>)<span class="question-mark">?</span>;
+     
+    <span class="kw">let </span>min_val = <span class="kw-2">*</span>samples.iter().min().unwrap();
+    <span class="kw">let </span>max_val = <span class="kw-2">*</span>samples.iter().max().unwrap();
+     
+    <span class="macro">println!</span>(<span class="string">"Signal {}: digital range {} to {} (expected: {} to {})"</span>,
+        signal_label, min_val, max_val, digital_min, digital_max);
+         
+    <span class="comment">// Check for clipping
+    </span><span class="kw">if </span>min_val &lt;= digital_min || max_val &gt;= digital_max {
+        <span class="macro">println!</span>(<span class="string">"  Warning: Signal may be clipped!"</span>);
+    }
+}
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.seek" class="method"><a class="src rightside" href="../../src/edfplus/reader.rs.html#590-602">Source</a><h4 class="code-header">pub fn <a href="#method.seek" class="fn">seek</a>(&amp;mut self, signal: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>, position: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i64.html">i64</a>) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i64.html">i64</a>&gt;</h4></section></summary><div class="docblock"><p>设置指定信号的样本位置</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.tell" class="method"><a class="src rightside" href="../../src/edfplus/reader.rs.html#605-611">Source</a><h4 class="code-header">pub fn <a href="#method.tell" class="fn">tell</a>(&amp;self, signal: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i64.html">i64</a>&gt;</h4></section></summary><div class="docblock"><p>获取指定信号的当前样本位置</p>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.rewind" class="method"><a class="src rightside" href="../../src/edfplus/reader.rs.html#614-617">Source</a><h4 class="code-header">pub fn <a href="#method.rewind" class="fn">rewind</a>(&amp;mut self, signal: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>&gt;</h4></section></summary><div class="docblock"><p>将指定信号的位置重置到开头</p>
+</div></details></div></details></div><h2 id="synthetic-implementations" class="section-header">Auto Trait Implementations<a href="#synthetic-implementations" class="anchor">§</a></h2><div id="synthetic-implementations-list"><section id="impl-Freeze-for-EdfReader" class="impl"><a href="#impl-Freeze-for-EdfReader" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Freeze.html" title="trait core::marker::Freeze">Freeze</a> for <a class="struct" href="struct.EdfReader.html" title="struct edfplus::reader::EdfReader">EdfReader</a></h3></section><section id="impl-RefUnwindSafe-for-EdfReader" class="impl"><a href="#impl-RefUnwindSafe-for-EdfReader" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/panic/unwind_safe/trait.RefUnwindSafe.html" title="trait core::panic::unwind_safe::RefUnwindSafe">RefUnwindSafe</a> for <a class="struct" href="struct.EdfReader.html" title="struct edfplus::reader::EdfReader">EdfReader</a></h3></section><section id="impl-Send-for-EdfReader" class="impl"><a href="#impl-Send-for-EdfReader" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="struct.EdfReader.html" title="struct edfplus::reader::EdfReader">EdfReader</a></h3></section><section id="impl-Sync-for-EdfReader" class="impl"><a href="#impl-Sync-for-EdfReader" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="struct.EdfReader.html" title="struct edfplus::reader::EdfReader">EdfReader</a></h3></section><section id="impl-Unpin-for-EdfReader" class="impl"><a href="#impl-Unpin-for-EdfReader" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Unpin.html" title="trait core::marker::Unpin">Unpin</a> for <a class="struct" href="struct.EdfReader.html" title="struct edfplus::reader::EdfReader">EdfReader</a></h3></section><section id="impl-UnwindSafe-for-EdfReader" class="impl"><a href="#impl-UnwindSafe-for-EdfReader" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/panic/unwind_safe/trait.UnwindSafe.html" title="trait core::panic::unwind_safe::UnwindSafe">UnwindSafe</a> for <a class="struct" href="struct.EdfReader.html" title="struct edfplus::reader::EdfReader">EdfReader</a></h3></section></div><h2 id="blanket-implementations" class="section-header">Blanket Implementations<a href="#blanket-implementations" class="anchor">§</a></h2><div id="blanket-implementations-list"><details class="toggle implementors-toggle"><summary><section id="impl-Any-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/any.rs.html#138">Source</a><a href="#impl-Any-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/any/trait.Any.html" title="trait core::any::Any">Any</a> for T<div class="where">where
+    T: 'static + ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.type_id" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/any.rs.html#139">Source</a><a href="#method.type_id" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/any/trait.Any.html#tymethod.type_id" class="fn">type_id</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/any/struct.TypeId.html" title="struct core::any::TypeId">TypeId</a></h4></section></summary><div class='docblock'>Gets the <code>TypeId</code> of <code>self</code>. <a href="https://doc.rust-lang.org/1.87.0/core/any/trait.Any.html#tymethod.type_id">Read more</a></div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-Borrow%3CT%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#209">Source</a><a href="#impl-Borrow%3CT%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.Borrow.html" title="trait core::borrow::Borrow">Borrow</a>&lt;T&gt; for T<div class="where">where
+    T: ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.borrow" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#211">Source</a><a href="#method.borrow" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.Borrow.html#tymethod.borrow" class="fn">borrow</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.reference.html">&amp;T</a></h4></section></summary><div class='docblock'>Immutably borrows from an owned value. <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.Borrow.html#tymethod.borrow">Read more</a></div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-BorrowMut%3CT%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#217">Source</a><a href="#impl-BorrowMut%3CT%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.BorrowMut.html" title="trait core::borrow::BorrowMut">BorrowMut</a>&lt;T&gt; for T<div class="where">where
+    T: ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.borrow_mut" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#218">Source</a><a href="#method.borrow_mut" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.BorrowMut.html#tymethod.borrow_mut" class="fn">borrow_mut</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.reference.html">&amp;mut T</a></h4></section></summary><div class='docblock'>Mutably borrows from an owned value. <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.BorrowMut.html#tymethod.borrow_mut">Read more</a></div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-From%3CT%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#767">Source</a><a href="#impl-From%3CT%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt; for T</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#770">Source</a><a href="#method.from" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(t: T) -&gt; T</h4></section></summary><div class="docblock"><p>Returns the argument unchanged.</p>
+</div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-Into%3CU%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#750-752">Source</a><a href="#impl-Into%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.into" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#760">Source</a><a href="#method.into" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.Into.html#tymethod.into" class="fn">into</a>(self) -&gt; U</h4></section></summary><div class="docblock"><p>Calls <code>U::from(self)</code>.</p>
+<p>That is, this conversion is whatever the implementation of
+<code><a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt; for U</code> chooses to do.</p>
+</div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryFrom%3CU%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#806-808">Source</a><a href="#impl-TryFrom%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><details class="toggle" open><summary><section id="associatedtype.Error-1" class="associatedtype trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#810">Source</a><a href="#associatedtype.Error-1" class="anchor">§</a><h4 class="code-header">type <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" class="associatedtype">Error</a> = <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/convert/enum.Infallible.html" title="enum core::convert::Infallible">Infallible</a></h4></section></summary><div class='docblock'>The type returned in the event of a conversion error.</div></details><details class="toggle method-toggle" open><summary><section id="method.try_from" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#813">Source</a><a href="#method.try_from" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#tymethod.try_from" class="fn">try_from</a>(value: U) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;T, &lt;T as <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;U&gt;&gt;::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a>&gt;</h4></section></summary><div class='docblock'>Performs the conversion.</div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryInto%3CU%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#791-793">Source</a><a href="#impl-TryInto%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryInto.html" title="trait core::convert::TryInto">TryInto</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><details class="toggle" open><summary><section id="associatedtype.Error" class="associatedtype trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#795">Source</a><a href="#associatedtype.Error" class="anchor">§</a><h4 class="code-header">type <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryInto.html#associatedtype.Error" class="associatedtype">Error</a> = &lt;U as <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;&gt;::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a></h4></section></summary><div class='docblock'>The type returned in the event of a conversion error.</div></details><details class="toggle method-toggle" open><summary><section id="method.try_into" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#798">Source</a><a href="#method.try_into" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryInto.html#tymethod.try_into" class="fn">try_into</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;U, &lt;U as <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;&gt;::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a>&gt;</h4></section></summary><div class='docblock'>Performs the conversion.</div></details></div></details></div></section></div></main></body></html>

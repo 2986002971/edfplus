@@ -1,0 +1,748 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="EDF+ file writer for creating European Data Format Plus files"><title>EdfWriter in edfplus::writer - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="edfplus" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../../static.files/storage-82c7156e.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../../static.files/favicon-044be391.svg"></head><body class="rustdoc struct"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../edfplus/index.html">edfplus</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">EdfWriter</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#file-creation-workflow" title="File Creation Workflow">File Creation Workflow</a></li><li><a href="#examples" title="Examples">Examples</a><ul><li><a href="#basic-edf-file-creation" title="Basic EDF+ file creation">Basic EDF+ file creation</a></li><li><a href="#multi-channel-recording" title="Multi-channel recording">Multi-channel recording</a></li></ul></li></ul><h3><a href="#implementations">Methods</a></h3><ul class="block method"><li><a href="#method.add_annotation" title="add_annotation">add_annotation</a></li><li><a href="#method.add_signal" title="add_signal">add_signal</a></li><li><a href="#method.annotation_count" title="annotation_count">annotation_count</a></li><li><a href="#method.create" title="create">create</a></li><li><a href="#method.finalize" title="finalize">finalize</a></li><li><a href="#method.set_datarecord_duration" title="set_datarecord_duration">set_datarecord_duration</a></li><li><a href="#method.set_number_of_annotation_signals" title="set_number_of_annotation_signals">set_number_of_annotation_signals</a></li><li><a href="#method.set_patient_info" title="set_patient_info">set_patient_info</a></li><li><a href="#method.set_subsecond_starttime" title="set_subsecond_starttime">set_subsecond_starttime</a></li><li><a href="#method.write_samples" title="write_samples">write_samples</a></li></ul><h3><a href="#synthetic-implementations">Auto Trait Implementations</a></h3><ul class="block synthetic-implementation"><li><a href="#impl-Freeze-for-EdfWriter" title="Freeze">Freeze</a></li><li><a href="#impl-RefUnwindSafe-for-EdfWriter" title="RefUnwindSafe">RefUnwindSafe</a></li><li><a href="#impl-Send-for-EdfWriter" title="Send">Send</a></li><li><a href="#impl-Sync-for-EdfWriter" title="Sync">Sync</a></li><li><a href="#impl-Unpin-for-EdfWriter" title="Unpin">Unpin</a></li><li><a href="#impl-UnwindSafe-for-EdfWriter" title="UnwindSafe">UnwindSafe</a></li></ul><h3><a href="#blanket-implementations">Blanket Implementations</a></h3><ul class="block blanket-implementation"><li><a href="#impl-Any-for-T" title="Any">Any</a></li><li><a href="#impl-Borrow%3CT%3E-for-T" title="Borrow&#60;T&#62;">Borrow&#60;T&#62;</a></li><li><a href="#impl-BorrowMut%3CT%3E-for-T" title="BorrowMut&#60;T&#62;">BorrowMut&#60;T&#62;</a></li><li><a href="#impl-From%3CT%3E-for-T" title="From&#60;T&#62;">From&#60;T&#62;</a></li><li><a href="#impl-Into%3CU%3E-for-T" title="Into&#60;U&#62;">Into&#60;U&#62;</a></li><li><a href="#impl-TryFrom%3CU%3E-for-T" title="TryFrom&#60;U&#62;">TryFrom&#60;U&#62;</a></li><li><a href="#impl-TryInto%3CU%3E-for-T" title="TryInto&#60;U&#62;">TryInto&#60;U&#62;</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In edfplus::<wbr>writer</a></h2></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../index.html">edfplus</a>::<wbr><a href="index.html">writer</a></div><h1>Struct <span class="struct">EdfWriter</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../src/edfplus/writer.rs.html#173-201">Source</a> </span></div><pre class="rust item-decl"><code>pub struct EdfWriter { <span class="comment">/* private fields */</span> }</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>EDF+ file writer for creating European Data Format Plus files</p>
+<p>The <code>EdfWriter</code> provides methods to create new EDF+ files and write
+biosignal data with proper metadata. It ensures compliance with the
+EDF+ specification and provides validation of signal parameters.</p>
+<h2 id="file-creation-workflow"><a class="doc-anchor" href="#file-creation-workflow">§</a>File Creation Workflow</h2>
+<ol>
+<li>Create writer with <code>EdfWriter::create()</code></li>
+<li>Set patient and recording information</li>
+<li>Add signal definitions with <code>add_signal()</code></li>
+<li>Write sample data with <code>write_samples()</code></li>
+<li>Finalize the file with <code>finalize()</code></li>
+</ol>
+<h2 id="examples"><a class="doc-anchor" href="#examples">§</a>Examples</h2><h3 id="basic-edf-file-creation"><a class="doc-anchor" href="#basic-edf-file-creation">§</a>Basic EDF+ file creation</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="comment">// Create new EDF+ file
+</span><span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"output.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Set patient information
+</span>writer.set_patient_info(<span class="string">"P001"</span>, <span class="string">"M"</span>, <span class="string">"01-JAN-1990"</span>, <span class="string">"Test Patient"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Define an EEG signal
+</span><span class="kw">let </span>eeg_signal = SignalParam {
+    label: <span class="string">"EEG Fp1"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,  <span class="comment">// Calculated automatically
+    </span>physical_max: <span class="number">200.0</span>,
+    physical_min: -<span class="number">200.0</span>,
+    digital_max: <span class="number">32767</span>,
+    digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">256</span>,  <span class="comment">// 256 Hz sampling rate
+    </span>physical_dimension: <span class="string">"uV"</span>.to_string(),
+    prefilter: <span class="string">"HP:0.1Hz LP:70Hz"</span>.to_string(),
+    transducer: <span class="string">"AgAgCl cup electrodes"</span>.to_string(),
+};
+ 
+writer.add_signal(eeg_signal)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Generate and write sample data
+</span><span class="kw">let </span><span class="kw-2">mut </span>samples = Vec::new();
+<span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">256 </span>{
+    <span class="kw">let </span>t = i <span class="kw">as </span>f64 / <span class="number">256.0</span>;
+    <span class="kw">let </span>value = <span class="number">50.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">10.0 </span>* t).sin();
+    samples.push(value);
+}
+ 
+writer.write_samples(<span class="kw-2">&amp;</span>[samples])<span class="question-mark">?</span>;
+writer.finalize()<span class="question-mark">?</span>;
+ </code></pre></div>
+<h3 id="multi-channel-recording"><a class="doc-anchor" href="#multi-channel-recording">§</a>Multi-channel recording</h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"multi_channel.edf"</span>)<span class="question-mark">?</span>;
+writer.set_patient_info(<span class="string">"P002"</span>, <span class="string">"F"</span>, <span class="string">"15-MAR-1985"</span>, <span class="string">"Multi Channel Test"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Add multiple signals
+</span><span class="kw">let </span>signals = <span class="macro">vec!</span>[
+    SignalParam {
+        label: <span class="string">"EEG C3"</span>.to_string(),
+        samples_in_file: <span class="number">0</span>,
+        physical_max: <span class="number">200.0</span>, physical_min: -<span class="number">200.0</span>,
+        digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+        samples_per_record: <span class="number">256</span>,
+        physical_dimension: <span class="string">"uV"</span>.to_string(),
+        prefilter: <span class="string">"HP:0.1Hz LP:70Hz"</span>.to_string(),
+        transducer: <span class="string">"AgAgCl electrodes"</span>.to_string(),
+    },
+    SignalParam {
+        label: <span class="string">"ECG Lead II"</span>.to_string(),
+        samples_in_file: <span class="number">0</span>,
+        physical_max: <span class="number">5.0</span>, physical_min: -<span class="number">5.0</span>,
+        digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+        samples_per_record: <span class="number">256</span>,
+        physical_dimension: <span class="string">"mV"</span>.to_string(),
+        prefilter: <span class="string">"HP:0.1Hz LP:100Hz"</span>.to_string(),
+        transducer: <span class="string">"Chest electrodes"</span>.to_string(),
+    },
+];
+ 
+<span class="kw">for </span>signal <span class="kw">in </span>signals {
+    writer.add_signal(signal)<span class="question-mark">?</span>;
+}
+ 
+<span class="comment">// Write 10 seconds of data
+</span><span class="kw">for </span>second <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>eeg_samples = Vec::new();
+    <span class="kw">let </span><span class="kw-2">mut </span>ecg_samples = Vec::new();
+     
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">256 </span>{
+        <span class="kw">let </span>t = (second * <span class="number">256 </span>+ i) <span class="kw">as </span>f64 / <span class="number">256.0</span>;
+         
+        <span class="comment">// EEG: Alpha wave (10 Hz) with noise
+        </span><span class="kw">let </span>eeg = <span class="number">30.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">10.0 </span>* t).sin()
+                + <span class="number">5.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">50.0 </span>* t).sin();
+        eeg_samples.push(eeg);
+         
+        <span class="comment">// ECG: Heart beat pattern (60 BPM)
+        </span><span class="kw">let </span>ecg = <span class="number">2.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">1.0 </span>* t).sin();
+        ecg_samples.push(ecg);
+    }
+     
+    writer.write_samples(<span class="kw-2">&amp;</span>[eeg_samples, ecg_samples])<span class="question-mark">?</span>;
+}
+ 
+writer.finalize()<span class="question-mark">?</span>;
+ </code></pre></div>
+</div></details><h2 id="implementations" class="section-header">Implementations<a href="#implementations" class="anchor">§</a></h2><div id="implementations-list"><details class="toggle implementors-toggle" open><summary><section id="impl-EdfWriter" class="impl"><a class="src rightside" href="../../src/edfplus/writer.rs.html#203-1524">Source</a><a href="#impl-EdfWriter" class="anchor">§</a><h3 class="code-header">impl <a class="struct" href="struct.EdfWriter.html" title="struct edfplus::writer::EdfWriter">EdfWriter</a></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.create" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#255-286">Source</a><h4 class="code-header">pub fn <a href="#method.create" class="fn">create</a>&lt;P: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.AsRef.html" title="trait core::convert::AsRef">AsRef</a>&lt;<a class="struct" href="https://doc.rust-lang.org/1.87.0/std/path/struct.Path.html" title="struct std::path::Path">Path</a>&gt;&gt;(path: P) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;Self&gt;</h4></section></summary><div class="docblock"><p>Creates a new EDF+ file writer</p>
+<p>Opens a new file for writing and initializes the writer with default
+values. The file will be created (or truncated if it exists).</p>
+<h5 id="arguments"><a class="doc-anchor" href="#arguments">§</a>Arguments</h5>
+<ul>
+<li><code>path</code> - Path where the EDF+ file should be created</li>
+</ul>
+<h5 id="returns"><a class="doc-anchor" href="#returns">§</a>Returns</h5>
+<p>Returns a <code>Result&lt;EdfWriter, EdfError&gt;</code>. On success, contains an <code>EdfWriter</code>
+ready for configuration and data writing.</p>
+<h5 id="errors"><a class="doc-anchor" href="#errors">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::FileNotFound</code> - Cannot create file (permission issues, invalid path, etc.)</li>
+</ul>
+<h5 id="default-values"><a class="doc-anchor" href="#default-values">§</a>Default Values</h5>
+<p>The writer is initialized with the following defaults:</p>
+<ul>
+<li>Start date: January 1, 1985</li>
+<li>Start time: 00:00:00</li>
+<li>All patient and recording fields set to “X” (anonymized)</li>
+<li>Data record duration: 1 second</li>
+</ul>
+<h5 id="examples-1"><a class="doc-anchor" href="#examples-1">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfWriter;
+ 
+<span class="comment">// Create a new EDF+ file
+</span><span class="kw">let </span>writer = EdfWriter::create(<span class="string">"new_recording.edf"</span>)<span class="question-mark">?</span>;
+<span class="macro">println!</span>(<span class="string">"EDF+ writer created successfully"</span>);
+ </code></pre></div>
+<h6 id="handling-creation-errors"><a class="doc-anchor" href="#handling-creation-errors">§</a>Handling creation errors</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfWriter;
+ 
+<span class="kw">match </span>EdfWriter::create(<span class="string">"/invalid/path/file.edf"</span>) {
+    <span class="prelude-val">Ok</span>(<span class="kw">_</span>) =&gt; <span class="macro">println!</span>(<span class="string">"File created"</span>),
+    <span class="prelude-val">Err</span>(e) =&gt; <span class="macro">eprintln!</span>(<span class="string">"Failed to create file: {}"</span>, e),
+}</code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.add_signal" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#374-389">Source</a><h4 class="code-header">pub fn <a href="#method.add_signal" class="fn">add_signal</a>(&amp;mut self, signal: <a class="struct" href="../types/struct.SignalParam.html" title="struct edfplus::types::SignalParam">SignalParam</a>) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>&gt;</h4></section></summary><div class="docblock"><p>Adds a signal definition to the EDF+ file</p>
+<p>Each signal represents a data channel (e.g., EEG electrode, ECG lead).
+Signals must be added before writing any data. The order in which
+signals are added determines their index for data writing.</p>
+<h5 id="arguments-1"><a class="doc-anchor" href="#arguments-1">§</a>Arguments</h5>
+<ul>
+<li><code>signal</code> - SignalParam containing all signal metadata</li>
+</ul>
+<h5 id="errors-1"><a class="doc-anchor" href="#errors-1">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::InvalidFormat</code> - Trying to add signal after header is written</li>
+<li><code>EdfError::PhysicalMinEqualsMax</code> - Invalid physical range</li>
+<li><code>EdfError::DigitalMinEqualsMax</code> - Invalid digital range</li>
+</ul>
+<h5 id="signal-parameter-requirements"><a class="doc-anchor" href="#signal-parameter-requirements">§</a>Signal Parameter Requirements</h5>
+<ul>
+<li><code>physical_min</code> must be different from <code>physical_max</code></li>
+<li><code>digital_min</code> must be different from <code>digital_max</code></li>
+<li><code>samples_per_record</code> should match the intended sampling rate</li>
+<li><code>label</code> should be descriptive and follow EDF+ conventions</li>
+</ul>
+<h5 id="examples-2"><a class="doc-anchor" href="#examples-2">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"signals.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Add an EEG signal
+</span><span class="kw">let </span>eeg_signal = SignalParam {
+    label: <span class="string">"EEG Fp1-A1"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,  <span class="comment">// Will be calculated
+    </span>physical_max: <span class="number">200.0</span>,    <span class="comment">// +200 µV
+    </span>physical_min: -<span class="number">200.0</span>,   <span class="comment">// -200 µV  
+    </span>digital_max: <span class="number">32767</span>,     <span class="comment">// 16-bit signed max
+    </span>digital_min: -<span class="number">32768</span>,    <span class="comment">// 16-bit signed min
+    </span>samples_per_record: <span class="number">256</span>, <span class="comment">// 256 Hz sampling
+    </span>physical_dimension: <span class="string">"uV"</span>.to_string(),
+    prefilter: <span class="string">"HP:0.1Hz LP:70Hz N:50Hz"</span>.to_string(),
+    transducer: <span class="string">"AgAgCl cup electrodes"</span>.to_string(),
+};
+ 
+writer.add_signal(eeg_signal)<span class="question-mark">?</span>;
+ </code></pre></div>
+<h6 id="adding-multiple-signals-with-different-sampling-rates"><a class="doc-anchor" href="#adding-multiple-signals-with-different-sampling-rates">§</a>Adding multiple signals with different sampling rates</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"mixed_rates.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// High-frequency EEG signal
+</span>writer.add_signal(SignalParam {
+    label: <span class="string">"EEG C3-A1"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">200.0</span>, physical_min: -<span class="number">200.0</span>,
+    digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">512</span>,  <span class="comment">// 512 Hz
+    </span>physical_dimension: <span class="string">"uV"</span>.to_string(),
+    prefilter: <span class="string">"HP:0.1Hz LP:200Hz"</span>.to_string(),
+    transducer: <span class="string">"Gold cup electrodes"</span>.to_string(),
+})<span class="question-mark">?</span>;
+ 
+<span class="comment">// Lower-frequency physiological signal
+</span>writer.add_signal(SignalParam {
+    label: <span class="string">"Temperature"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">40.0</span>, physical_min: <span class="number">30.0</span>,
+    digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">1</span>,    <span class="comment">// 1 Hz
+    </span>physical_dimension: <span class="string">"degC"</span>.to_string(),
+    prefilter: <span class="string">"None"</span>.to_string(),
+    transducer: <span class="string">"Thermistor"</span>.to_string(),
+})<span class="question-mark">?</span>;
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.set_patient_info" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#474-484">Source</a><h4 class="code-header">pub fn <a href="#method.set_patient_info" class="fn">set_patient_info</a>(
+    &amp;mut self,
+    code: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.str.html">str</a>,
+    sex: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.str.html">str</a>,
+    birthdate: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.str.html">str</a>,
+    name: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.str.html">str</a>,
+) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>&gt;</h4></section></summary><div class="docblock"><p>Sets patient information for the EDF+ file</p>
+<p>Patient information is embedded in the EDF+ header and follows
+specific formatting requirements. This information is crucial
+for medical applications but can be anonymized for privacy.</p>
+<h5 id="arguments-2"><a class="doc-anchor" href="#arguments-2">§</a>Arguments</h5>
+<ul>
+<li><code>code</code> - Patient identification code (max 80 chars)</li>
+<li><code>sex</code> - Patient sex: “M”, “F”, or “X” (unknown)</li>
+<li><code>birthdate</code> - Birth date in DD-MMM-YYYY format or “X”</li>
+<li><code>name</code> - Patient name or “X” for anonymized data</li>
+</ul>
+<h5 id="errors-2"><a class="doc-anchor" href="#errors-2">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::InvalidFormat</code> - Trying to modify after header written</li>
+</ul>
+<h5 id="format-requirements"><a class="doc-anchor" href="#format-requirements">§</a>Format Requirements</h5>
+<ul>
+<li>Patient code should be unique and meaningful</li>
+<li>Sex must be “M”, “F”, or “X”</li>
+<li>Birth date format: “02-MAY-1951” or “X” if unknown</li>
+<li>Name can be full name or “X” for anonymization</li>
+</ul>
+<h5 id="examples-3"><a class="doc-anchor" href="#examples-3">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfWriter;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"patient_data.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Set complete patient information
+</span>writer.set_patient_info(
+    <span class="string">"P001-2024"</span>,           <span class="comment">// Patient code
+    </span><span class="string">"F"</span>,                   <span class="comment">// Female
+    </span><span class="string">"15-MAR-1990"</span>,         <span class="comment">// Birth date
+    </span><span class="string">"Jane Doe"             </span><span class="comment">// Patient name
+</span>)<span class="question-mark">?</span>;
+ </code></pre></div>
+<h6 id="anonymized-patient-data"><a class="doc-anchor" href="#anonymized-patient-data">§</a>Anonymized patient data</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfWriter;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"anonymous.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Anonymized information for privacy protection
+</span>writer.set_patient_info(
+    <span class="string">"ANON-001"</span>,    <span class="comment">// Anonymous code
+    </span><span class="string">"X"</span>,           <span class="comment">// Sex unknown/anonymized
+    </span><span class="string">"X"</span>,           <span class="comment">// Birth date anonymized
+    </span><span class="string">"X"            </span><span class="comment">// Name anonymized
+</span>)<span class="question-mark">?</span>;
+ </code></pre></div>
+<h6 id="research-study-format"><a class="doc-anchor" href="#research-study-format">§</a>Research study format</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfWriter;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"study_subject.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Research study patient coding
+</span>writer.set_patient_info(
+    <span class="string">"STUDY-EEG-S042"</span>,      <span class="comment">// Study-specific ID
+    </span><span class="string">"M"</span>,                   <span class="comment">// Male
+    </span><span class="string">"22-JUL-1985"</span>,         <span class="comment">// Known birth date
+    </span><span class="string">"Subject 042"          </span><span class="comment">// Study identifier
+</span>)<span class="question-mark">?</span>;
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.set_datarecord_duration" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#536-548">Source</a><h4 class="code-header">pub fn <a href="#method.set_datarecord_duration" class="fn">set_datarecord_duration</a>(&amp;mut self, duration_seconds: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.f64.html">f64</a>) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>&gt;</h4></section></summary><div class="docblock"><p>Sets the data record duration for the EDF+ file</p>
+<p>The data record duration determines how long each data record represents
+in time. This affects the temporal resolution and file organization.
+Most EDF+ files use 1 second data records, but other durations are possible.</p>
+<h5 id="arguments-3"><a class="doc-anchor" href="#arguments-3">§</a>Arguments</h5>
+<ul>
+<li><code>duration_seconds</code> - Duration of each data record in seconds</li>
+</ul>
+<h5 id="errors-3"><a class="doc-anchor" href="#errors-3">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::InvalidFormat</code> - Trying to modify after header written</li>
+<li><code>EdfError::InvalidArgument</code> - Duration &lt;= 0 or too large</li>
+</ul>
+<h5 id="common-values"><a class="doc-anchor" href="#common-values">§</a>Common Values</h5>
+<ul>
+<li>1.0 seconds: Standard for most clinical recordings</li>
+<li>0.1 seconds: Higher temporal resolution for fast events</li>
+<li>10.0 seconds: Lower resolution for long-term monitoring</li>
+</ul>
+<h5 id="examples-4"><a class="doc-anchor" href="#examples-4">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfWriter;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"custom_duration.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Set 0.5 second data records for higher temporal resolution
+</span>writer.set_datarecord_duration(<span class="number">0.5</span>)<span class="question-mark">?</span>;
+ </code></pre></div>
+<h6 id="high-frequency-recording"><a class="doc-anchor" href="#high-frequency-recording">§</a>High-frequency recording</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfWriter;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"high_freq.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Use 0.1 second records for fast neural signals
+</span>writer.set_datarecord_duration(<span class="number">0.1</span>)<span class="question-mark">?</span>;
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.write_samples" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#828-878">Source</a><h4 class="code-header">pub fn <a href="#method.write_samples" class="fn">write_samples</a>(&amp;mut self, samples: &amp;[<a class="struct" href="https://doc.rust-lang.org/1.87.0/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.f64.html">f64</a>&gt;]) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>&gt;</h4></section></summary><div class="docblock"><p>Writes sample data for all signals to the current data record</p>
+<p><strong>⚠️ WARNING: IRREVERSIBLE OPERATION</strong></p>
+<p>Once this method is called, the written data record <strong>CANNOT be modified</strong>.
+This library uses a <strong>sequential streaming write</strong> architecture that does not
+support backtracking or random access modification.</p>
+<p><strong>What happens when you call this method:</strong></p>
+<ol>
+<li>Signal sample data is immediately written to the file buffer</li>
+<li>Annotation data for this time period is generated and written</li>
+<li>The internal record counter is incremented</li>
+<li><strong>The written content becomes immutable</strong></li>
+</ol>
+<p><strong>If you need to modify data:</strong></p>
+<ul>
+<li>Collect all your data and annotations first</li>
+<li>Create a new file with the corrected data</li>
+<li>See documentation for strategies: in-memory preparation, temporary files, etc.</li>
+</ul>
+<h5 id="arguments-4"><a class="doc-anchor" href="#arguments-4">§</a>Arguments</h5>
+<ul>
+<li><code>samples</code> - Vector of sample vectors, one per signal channel
+<ul>
+<li>Must contain exactly the same number of vectors as signals added</li>
+<li>Each vector must contain exactly <code>samples_per_record</code> samples</li>
+</ul>
+</li>
+</ul>
+<h5 id="errors-4"><a class="doc-anchor" href="#errors-4">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::InvalidFormat</code> - Wrong number of sample vectors or samples per vector</li>
+<li><code>EdfError::FileWriteError</code> - I/O error during writing</li>
+<li><code>EdfError::NotReady</code> - File headers not written yet</li>
+</ul>
+<h5 id="sample-organization"><a class="doc-anchor" href="#sample-organization">§</a>Sample Organization</h5>
+<p>The <code>samples</code> parameter must be organized as:</p>
+<ul>
+<li>Outer vector: one element per signal (in order added)</li>
+<li>Inner vectors: physical values for each signal</li>
+<li>All inner vectors must have the same length (matching <code>samples_per_record</code>)</li>
+</ul>
+<h5 id="examples-5"><a class="doc-anchor" href="#examples-5">§</a>Examples</h5><h6 id="writing-a-single-data-record-with-multiple-signals"><a class="doc-anchor" href="#writing-a-single-data-record-with-multiple-signals">§</a>Writing a single data record with multiple signals</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"multi_signal.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Add two signals with the same sampling rate
+</span>writer.add_signal(SignalParam {
+    label: <span class="string">"EEG Fp1"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">100.0</span>, physical_min: -<span class="number">100.0</span>,
+    digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">256</span>,  <span class="comment">// 256 samples per data record
+    </span>physical_dimension: <span class="string">"uV"</span>.to_string(),
+    prefilter: <span class="string">"HP:0.1Hz LP:70Hz"</span>.to_string(),
+    transducer: <span class="string">"AgAgCl electrodes"</span>.to_string(),
+})<span class="question-mark">?</span>;
+ 
+writer.add_signal(SignalParam {
+    label: <span class="string">"ECG Lead II"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">5.0</span>, physical_min: -<span class="number">5.0</span>,
+    digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">256</span>,  <span class="comment">// Same sampling rate as EEG
+    </span>physical_dimension: <span class="string">"mV"</span>.to_string(),
+    prefilter: <span class="string">"HP:0.1Hz LP:100Hz"</span>.to_string(),
+    transducer: <span class="string">"Chest electrodes"</span>.to_string(),
+})<span class="question-mark">?</span>;
+ 
+<span class="comment">// Generate sample data (256 samples for each signal)
+</span><span class="kw">let </span><span class="kw-2">mut </span>eeg_samples = Vec::new();
+<span class="kw">let </span><span class="kw-2">mut </span>ecg_samples = Vec::new();
+ 
+<span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">256 </span>{
+    <span class="kw">let </span>t = i <span class="kw">as </span>f64 / <span class="number">256.0</span>;  <span class="comment">// Time within this 1-second data record
+    </span>eeg_samples.push(<span class="number">20.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">10.0 </span>* t).sin()); <span class="comment">// 10 Hz EEG
+    </span>ecg_samples.push(<span class="number">1.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">1.0 </span>* t).sin());   <span class="comment">// 1 Hz ECG
+</span>}
+ 
+<span class="comment">// Write one data record containing both signals
+</span>writer.write_samples(<span class="kw-2">&amp;</span>[eeg_samples, ecg_samples])<span class="question-mark">?</span>;
+writer.finalize()<span class="question-mark">?</span>;
+ </code></pre></div>
+<h6 id="writing-multiple-data-records-continuous-recording"><a class="doc-anchor" href="#writing-multiple-data-records-continuous-recording">§</a>Writing multiple data records (continuous recording)</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"continuous.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Add a single signal
+</span>writer.add_signal(SignalParam {
+    label: <span class="string">"Continuous EEG"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">100.0</span>, physical_min: -<span class="number">100.0</span>,
+    digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">256</span>,  <span class="comment">// 256 Hz sampling rate (256 samples per 1-second record)
+    </span>physical_dimension: <span class="string">"uV"</span>.to_string(),
+    prefilter: <span class="string">"HP:0.1Hz LP:70Hz"</span>.to_string(),
+    transducer: <span class="string">"AgAgCl electrodes"</span>.to_string(),
+})<span class="question-mark">?</span>;
+ 
+<span class="comment">// Write 10 seconds of continuous data (10 data records)
+</span><span class="kw">for </span>second <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
+    <span class="kw">let </span><span class="kw-2">mut </span>samples = Vec::new();
+     
+    <span class="comment">// Generate 256 samples for this 1-second data record
+    </span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">256 </span>{
+        <span class="kw">let </span>t = (second * <span class="number">256 </span>+ i) <span class="kw">as </span>f64 / <span class="number">256.0</span>;  <span class="comment">// Absolute time since recording start
+        </span><span class="kw">let </span>value = <span class="number">50.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">10.0 </span>* t).sin();
+        samples.push(value);
+    }
+     
+    <span class="comment">// Write one data record (note: samples is a Vec&lt;f64&gt;, so we wrap it in &amp;[samples])
+    </span>writer.write_samples(<span class="kw-2">&amp;</span>[samples])<span class="question-mark">?</span>;
+}
+ 
+writer.finalize()<span class="question-mark">?</span>;
+ </code></pre></div>
+<h6 id="writing-multiple-signals-with-different-sampling-rates"><a class="doc-anchor" href="#writing-multiple-signals-with-different-sampling-rates">§</a>Writing multiple signals with different sampling rates</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"mixed_rates.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// High-frequency EEG signal
+</span>writer.add_signal(SignalParam {
+    label: <span class="string">"EEG C3"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">200.0</span>, physical_min: -<span class="number">200.0</span>,
+    digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">500</span>,  <span class="comment">// 500 Hz sampling rate
+    </span>physical_dimension: <span class="string">"uV"</span>.to_string(),
+    prefilter: <span class="string">"HP:0.1Hz LP:200Hz"</span>.to_string(),
+    transducer: <span class="string">"Gold cup electrodes"</span>.to_string(),
+})<span class="question-mark">?</span>;
+ 
+<span class="comment">// Lower-frequency physiological signal
+</span>writer.add_signal(SignalParam {
+    label: <span class="string">"Respiration"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">10.0</span>, physical_min: -<span class="number">10.0</span>,
+    digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">25</span>,   <span class="comment">// 25 Hz sampling rate
+    </span>physical_dimension: <span class="string">"arbitrary"</span>.to_string(),
+    prefilter: <span class="string">"LP:10Hz"</span>.to_string(),
+    transducer: <span class="string">"Strain gauge"</span>.to_string(),
+})<span class="question-mark">?</span>;
+ 
+<span class="comment">// Write 5 seconds of data
+</span><span class="kw">for </span>second <span class="kw">in </span><span class="number">0</span>..<span class="number">5 </span>{
+    <span class="comment">// EEG: 500 samples for this data record
+    </span><span class="kw">let </span><span class="kw-2">mut </span>eeg_samples = Vec::new();
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">500 </span>{
+        <span class="kw">let </span>t = (second * <span class="number">500 </span>+ i) <span class="kw">as </span>f64 / <span class="number">500.0</span>;
+        <span class="kw">let </span>value = <span class="number">100.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">10.0 </span>* t).sin();
+        eeg_samples.push(value);
+    }
+     
+    <span class="comment">// Respiration: 25 samples for this data record
+    </span><span class="kw">let </span><span class="kw-2">mut </span>resp_samples = Vec::new();
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">25 </span>{
+        <span class="kw">let </span>t = (second * <span class="number">25 </span>+ i) <span class="kw">as </span>f64 / <span class="number">25.0</span>;
+        <span class="kw">let </span>value = <span class="number">5.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">0.3 </span>* t).sin(); <span class="comment">// 0.3 Hz breathing
+        </span>resp_samples.push(value);
+    }
+     
+    <span class="comment">// Write both signals for this data record
+    </span>writer.write_samples(<span class="kw-2">&amp;</span>[eeg_samples, resp_samples])<span class="question-mark">?</span>;
+}
+ 
+writer.finalize()<span class="question-mark">?</span>;
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.finalize" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#953-975">Source</a><h4 class="code-header">pub fn <a href="#method.finalize" class="fn">finalize</a>(self) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>&gt;</h4></section></summary><div class="docblock"><p>Finalizes the EDF+ file and closes it</p>
+<p>This method must be called to complete the file writing process.
+It flushes any remaining data to disk and properly closes the file.
+After calling this method, the writer is consumed and cannot be used again.</p>
+<h5 id="errors-5"><a class="doc-anchor" href="#errors-5">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::FileWriteError</code> - I/O error during file finalization</li>
+</ul>
+<h5 id="file-integrity"><a class="doc-anchor" href="#file-integrity">§</a>File Integrity</h5>
+<p>Failing to call <code>finalize()</code> may result in:</p>
+<ul>
+<li>Incomplete file headers</li>
+<li>Missing data records</li>
+<li>Corrupted file structure</li>
+</ul>
+<p>Always call <code>finalize()</code> when finished writing data.</p>
+<h5 id="examples-6"><a class="doc-anchor" href="#examples-6">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"final_test.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Add signal and write data...
+</span>writer.add_signal(SignalParam {
+    label: <span class="string">"Test Signal"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">1.0</span>, physical_min: -<span class="number">1.0</span>,
+    digital_max: <span class="number">32767</span>, digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">10</span>,
+    physical_dimension: <span class="string">"V"</span>.to_string(),
+    prefilter: <span class="string">"None"</span>.to_string(),
+    transducer: <span class="string">"Test"</span>.to_string(),
+})<span class="question-mark">?</span>;
+ 
+<span class="kw">let </span>samples = <span class="macro">vec!</span>[<span class="number">0.1</span>, <span class="number">0.2</span>, <span class="number">0.3</span>, <span class="number">0.4</span>, <span class="number">0.5</span>, -<span class="number">0.1</span>, -<span class="number">0.2</span>, -<span class="number">0.3</span>, -<span class="number">0.4</span>, -<span class="number">0.5</span>];
+writer.write_samples(<span class="kw-2">&amp;</span>[samples])<span class="question-mark">?</span>;
+ 
+<span class="comment">// Always finalize to ensure file integrity
+</span>writer.finalize()<span class="question-mark">?</span>;
+ </code></pre></div>
+<h6 id="error-handling-during-finalization"><a class="doc-anchor" href="#error-handling-during-finalization">§</a>Error handling during finalization</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">fn </span>test_finalize() -&gt; <span class="prelude-ty">Result</span>&lt;(), Box&lt;<span class="kw">dyn </span>std::error::Error&gt;&gt; {
+    <span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"error_test.edf"</span>)<span class="question-mark">?</span>;
+    <span class="comment">// ... add signals and write data ...
+     
+    </span><span class="kw">match </span>writer.finalize() {
+        <span class="prelude-val">Ok</span>(()) =&gt; <span class="macro">println!</span>(<span class="string">"File successfully completed"</span>),
+        <span class="prelude-val">Err</span>(e) =&gt; {
+            <span class="macro">eprintln!</span>(<span class="string">"Error finalizing file: {}"</span>, e);
+            <span class="comment">// File may be corrupted
+        </span>}
+    }
+     
+    <span class="prelude-val">Ok</span>(())
+}
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.add_annotation" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#1178-1213">Source</a><h4 class="code-header">pub fn <a href="#method.add_annotation" class="fn">add_annotation</a>(
+    &amp;mut self,
+    onset_seconds: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.f64.html">f64</a>,
+    duration_seconds: <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.f64.html">f64</a>&gt;,
+    description: &amp;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.str.html">str</a>,
+) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>&gt;</h4></section></summary><div class="docblock"><p>Adds an annotation/event to the EDF+ file</p>
+<p><strong>⚠️ CRITICAL TIMING CONSTRAINT</strong></p>
+<p>Annotations are only saved when their onset time falls within <strong>future data records</strong>.
+Once a data record is written with <code>write_samples()</code>, no new annotations can be
+added to that time period.</p>
+<p><strong>Timing Rules:</strong></p>
+<ul>
+<li>Add annotations <strong>BEFORE</strong> writing the data records that cover their time range</li>
+<li>Annotations with <code>onset_seconds</code> in already-written time periods will be <strong>silently lost</strong></li>
+<li>This is due to the sequential write architecture - no backtracking is possible</li>
+</ul>
+<h5 id="arguments-5"><a class="doc-anchor" href="#arguments-5">§</a>Arguments</h5>
+<ul>
+<li><code>onset_seconds</code> - Time when the event occurred (seconds since recording start)</li>
+<li><code>duration_seconds</code> - Duration of the event in seconds (None for instantaneous events)</li>
+<li><code>description</code> - UTF-8 text describing the event (max 40 chars effective)</li>
+</ul>
+<h5 id="important-limitations"><a class="doc-anchor" href="#important-limitations">§</a>Important Limitations</h5><h6 id="description-length-limit"><a class="doc-anchor" href="#description-length-limit">§</a>Description Length Limit</h6>
+<p><strong>Warning</strong>: Annotation descriptions are subject to EDF+ format constraints:</p>
+<ul>
+<li>Maximum effective length is <strong>40 characters</strong> in the final TAL (Time-stamped Annotations Lists) data</li>
+<li>Longer descriptions will be <strong>automatically truncated</strong> during file writing</li>
+<li>UTF-8 multi-byte characters may be truncated at byte boundaries, potentially corrupting the text</li>
+<li>This limit is enforced by the EDF+ standard and matches edflib behavior</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"annotations.edf"</span>)<span class="question-mark">?</span>;
+<span class="comment">// ✅ Good - within 40 character limit
+</span>writer.add_annotation(<span class="number">1.0</span>, <span class="prelude-val">None</span>, <span class="string">"Sleep stage N2"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// ⚠️  Warning - will be truncated to 40 chars
+</span>writer.add_annotation(<span class="number">2.0</span>, <span class="prelude-val">None</span>, <span class="string">"This is a very long annotation description that exceeds the EDF+ limit"</span>)<span class="question-mark">?</span>;
+<span class="comment">// Result: "This is a very long annotation descripti"</span></code></pre></div>
+<h6 id="time-range-constraints"><a class="doc-anchor" href="#time-range-constraints">§</a>Time Range Constraints</h6>
+<p><strong>Critical</strong>: Annotations are only saved if their onset time falls within written data records:</p>
+<ul>
+<li>Annotations with <code>onset_seconds</code> &gt;= total file duration will be <strong>silently discarded</strong></li>
+<li>Each data record covers a specific time range (typically 1 second)</li>
+<li>An annotation at time T is only saved if there’s a data record covering [T, T+duration)</li>
+</ul>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="comment">// Write 5 seconds of data (5 records)
+</span><span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"annotations.edf"</span>)<span class="question-mark">?</span>;
+<span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">5 </span>{
+    <span class="kw">let </span>samples = <span class="macro">vec!</span>[<span class="number">0.0</span>; <span class="number">256</span>];
+    writer.write_samples(<span class="kw-2">&amp;</span>[samples])<span class="question-mark">?</span>;
+}
+ 
+<span class="comment">// ✅ Good - within file duration [0.0, 5.0)
+</span>writer.add_annotation(<span class="number">2.5</span>, <span class="prelude-val">None</span>, <span class="string">"Valid event"</span>)<span class="question-mark">?</span>;
+writer.add_annotation(<span class="number">4.999</span>, <span class="prelude-val">None</span>, <span class="string">"Last moment"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// ❌ Lost - outside file duration
+</span>writer.add_annotation(<span class="number">5.0</span>, <span class="prelude-val">None</span>, <span class="string">"Will be discarded"</span>)<span class="question-mark">?</span>;
+writer.add_annotation(<span class="number">6.0</span>, <span class="prelude-val">None</span>, <span class="string">"Also discarded"</span>)<span class="question-mark">?</span>;</code></pre></div>
+<h6 id="best-practices"><a class="doc-anchor" href="#best-practices">§</a>Best Practices</h6>
+<ol>
+<li><strong>Keep descriptions concise</strong> (≤40 characters)</li>
+<li><strong>Add annotations before finalizing</strong> the file</li>
+<li><strong>Ensure sufficient data records</strong> cover all annotation times</li>
+<li><strong>Use ASCII characters</strong> when possible to avoid UTF-8 truncation issues</li>
+<li><strong>Validate annotation times</strong> against your data duration</li>
+</ol>
+<h5 id="time-precision"><a class="doc-anchor" href="#time-precision">§</a>Time Precision</h5>
+<p>Time values are internally stored with 100-nanosecond precision.
+Input values will be rounded to the nearest 100 nanoseconds.</p>
+<h5 id="errors-6"><a class="doc-anchor" href="#errors-6">§</a>Errors</h5>
+<p>Returns <code>EdfError::InvalidFormat</code> if:</p>
+<ul>
+<li><code>onset_seconds</code> is negative</li>
+<li><code>duration_seconds</code> is negative</li>
+<li><code>description</code> is empty</li>
+<li><code>description</code> exceeds 512 characters (pre-truncation validation)</li>
+</ul>
+<h5 id="examples-7"><a class="doc-anchor" href="#examples-7">§</a>Examples</h5><h6 id="basic-usage"><a class="doc-anchor" href="#basic-usage">§</a>Basic Usage</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"annotations_test.edf"</span>)<span class="question-mark">?</span>;
+writer.set_patient_info(<span class="string">"P001"</span>, <span class="string">"M"</span>, <span class="string">"01-JAN-1990"</span>, <span class="string">"Test Patient"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Add a signal
+</span><span class="kw">let </span>signal = SignalParam {
+    label: <span class="string">"EEG"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">100.0</span>,
+    physical_min: -<span class="number">100.0</span>,
+    digital_max: <span class="number">32767</span>,
+    digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">256</span>,
+    physical_dimension: <span class="string">"uV"</span>.to_string(),
+    prefilter: <span class="string">"HP:0.1Hz"</span>.to_string(),
+    transducer: <span class="string">"AgAgCl"</span>.to_string(),
+};
+writer.add_signal(signal)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Write some data FIRST to establish time range
+</span><span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">10 </span>{
+    <span class="kw">let </span>samples = <span class="macro">vec!</span>[<span class="number">10.0</span>; <span class="number">256</span>];
+    writer.write_samples(<span class="kw-2">&amp;</span>[samples])<span class="question-mark">?</span>;  <span class="comment">// Creates 10 seconds of data
+</span>}
+ 
+<span class="comment">// Add annotations within the data time range [0.0, 10.0)
+</span>writer.add_annotation(<span class="number">0.5</span>, <span class="prelude-val">None</span>, <span class="string">"Recording start"</span>)<span class="question-mark">?</span>;
+writer.add_annotation(<span class="number">2.0</span>, <span class="prelude-val">Some</span>(<span class="number">1.0</span>), <span class="string">"Sleep stage 1"</span>)<span class="question-mark">?</span>;
+writer.add_annotation(<span class="number">5.5</span>, <span class="prelude-val">None</span>, <span class="string">"Eye movement"</span>)<span class="question-mark">?</span>;
+writer.add_annotation(<span class="number">9.999</span>, <span class="prelude-val">None</span>, <span class="string">"Near end"</span>)<span class="question-mark">?</span>;  <span class="comment">// Still within range
+ 
+</span>writer.finalize()<span class="question-mark">?</span>;
+ </code></pre></div>
+<h6 id="sleep-study-example-with-proper-time-management"><a class="doc-anchor" href="#sleep-study-example-with-proper-time-management">§</a>Sleep Study Example with Proper Time Management</h6>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"sleep_study.edf"</span>)<span class="question-mark">?</span>;
+writer.set_patient_info(<span class="string">"S001"</span>, <span class="string">"F"</span>, <span class="string">"15-MAR-1980"</span>, <span class="string">"Sleep Study"</span>)<span class="question-mark">?</span>;
+ 
+<span class="kw">let </span>eeg_signal = SignalParam {
+    label: <span class="string">"C3-A2"</span>.to_string(),
+    samples_in_file: <span class="number">0</span>,
+    physical_max: <span class="number">100.0</span>,
+    physical_min: -<span class="number">100.0</span>,
+    digital_max: <span class="number">32767</span>,
+    digital_min: -<span class="number">32768</span>,
+    samples_per_record: <span class="number">100</span>,  <span class="comment">// 100 Hz
+    </span>physical_dimension: <span class="string">"uV"</span>.to_string(),
+    prefilter: <span class="string">"0.1-35Hz"</span>.to_string(),
+    transducer: <span class="string">"AgAgCl"</span>.to_string(),
+};
+writer.add_signal(eeg_signal)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Record 30 minutes (1800 seconds) of sleep data
+</span><span class="kw">let </span>recording_duration_seconds = <span class="number">1800</span>;
+<span class="kw">for </span>second <span class="kw">in </span><span class="number">0</span>..recording_duration_seconds {
+    <span class="kw">let </span><span class="kw-2">mut </span>samples = Vec::with_capacity(<span class="number">100</span>);
+    <span class="kw">for </span>sample_idx <span class="kw">in </span><span class="number">0</span>..<span class="number">100 </span>{
+        <span class="kw">let </span>t = second <span class="kw">as </span>f64 + (sample_idx <span class="kw">as </span>f64 / <span class="number">100.0</span>);
+        <span class="kw">let </span>eeg_value = <span class="number">20.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">10.0 </span>* t).sin();
+        samples.push(eeg_value);
+    }
+    writer.write_samples(<span class="kw-2">&amp;</span>[samples])<span class="question-mark">?</span>;
+}
+ 
+<span class="comment">// Now add sleep annotations - all within [0, 1800) seconds
+</span>writer.add_annotation(<span class="number">300.0</span>, <span class="prelude-val">None</span>, <span class="string">"Lights out"</span>)<span class="question-mark">?</span>;                <span class="comment">// 5 min
+</span>writer.add_annotation(<span class="number">480.0</span>, <span class="prelude-val">None</span>, <span class="string">"Sleep onset"</span>)<span class="question-mark">?</span>;               <span class="comment">// 8 min  
+</span>writer.add_annotation(<span class="number">600.0</span>, <span class="prelude-val">Some</span>(<span class="number">1200.0</span>), <span class="string">"Stage N2"</span>)<span class="question-mark">?</span>;          <span class="comment">// 10-30 min
+</span>writer.add_annotation(<span class="number">900.0</span>, <span class="prelude-val">None</span>, <span class="string">"Sleep spindle"</span>)<span class="question-mark">?</span>;             <span class="comment">// 15 min
+</span>writer.add_annotation(<span class="number">1200.0</span>, <span class="prelude-val">Some</span>(<span class="number">300.0</span>), <span class="string">"REM episode"</span>)<span class="question-mark">?</span>;       <span class="comment">// 20-25 min
+</span>writer.add_annotation(<span class="number">1790.0</span>, <span class="prelude-val">None</span>, <span class="string">"Wake up"</span>)<span class="question-mark">?</span>;                  <span class="comment">// 29:50 - still valid
+ 
+</span>writer.finalize()<span class="question-mark">?</span>;
+ </code></pre></div>
+</div></details><details class="toggle method-toggle" open><summary><section id="method.annotation_count" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#1242-1244">Source</a><h4 class="code-header">pub fn <a href="#method.annotation_count" class="fn">annotation_count</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a></h4></section></summary><div class="docblock"><p>Gets the current number of annotations</p>
+<p>This can be useful for tracking how many annotations have been added
+before finalizing the file.</p>
+<h5 id="examples-8"><a class="doc-anchor" href="#examples-8">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam};
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"count_test.edf"</span>)<span class="question-mark">?</span>;
+writer.set_patient_info(<span class="string">"P001"</span>, <span class="string">"M"</span>, <span class="string">"01-JAN-1990"</span>, <span class="string">"Test"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Initially no annotations
+</span><span class="macro">assert_eq!</span>(writer.annotation_count(), <span class="number">0</span>);
+ 
+writer.add_annotation(<span class="number">1.0</span>, <span class="prelude-val">None</span>, <span class="string">"Event 1"</span>)<span class="question-mark">?</span>;
+<span class="macro">assert_eq!</span>(writer.annotation_count(), <span class="number">1</span>);
+ 
+writer.add_annotation(<span class="number">2.0</span>, <span class="prelude-val">Some</span>(<span class="number">0.5</span>), <span class="string">"Event 2"</span>)<span class="question-mark">?</span>;
+<span class="macro">assert_eq!</span>(writer.annotation_count(), <span class="number">2</span>);
+ </code></pre></div>
+</div></details><section id="method.set_subsecond_starttime" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#1383-1394">Source</a><h4 class="code-header">pub fn <a href="#method.set_subsecond_starttime" class="fn">set_subsecond_starttime</a>(&amp;mut self, subsecond: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.i64.html">i64</a>) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>&gt;</h4></section><details class="toggle method-toggle" open><summary><section id="method.set_number_of_annotation_signals" class="method"><a class="src rightside" href="../../src/edfplus/writer.rs.html#1508-1522">Source</a><h4 class="code-header">pub fn <a href="#method.set_number_of_annotation_signals" class="fn">set_number_of_annotation_signals</a>(
+    &amp;mut self,
+    annot_signals: <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.usize.html">usize</a>,
+) -&gt; <a class="type" href="../error/type.Result.html" title="type edfplus::error::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.unit.html">()</a>&gt;</h4></section></summary><div class="docblock"><p>Sets the number of annotation signals (channels)</p>
+<p>EDF+ supports multiple annotation signals according to the standard.
+This follows the edflib design where you can have 1-64 annotation channels.</p>
+<h5 id="arguments-6"><a class="doc-anchor" href="#arguments-6">§</a>Arguments</h5>
+<ul>
+<li><code>annot_signals</code> - Number of annotation signals (1-64)</li>
+</ul>
+<h5 id="errors-7"><a class="doc-anchor" href="#errors-7">§</a>Errors</h5>
+<ul>
+<li><code>EdfError::InvalidFormat</code> - Trying to modify after header written</li>
+<li><code>EdfError::InvalidArgument</code> - Invalid number of annotation signals</li>
+</ul>
+<h5 id="examples-9"><a class="doc-anchor" href="#examples-9">§</a>Examples</h5>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::EdfWriter;
+ 
+<span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"multi_annot.edf"</span>)<span class="question-mark">?</span>;
+ 
+<span class="comment">// Set 3 annotation channels for complex event coding
+</span>writer.set_number_of_annotation_signals(<span class="number">3</span>)<span class="question-mark">?</span>;
+ </code></pre></div>
+</div></details></div></details></div><h2 id="synthetic-implementations" class="section-header">Auto Trait Implementations<a href="#synthetic-implementations" class="anchor">§</a></h2><div id="synthetic-implementations-list"><section id="impl-Freeze-for-EdfWriter" class="impl"><a href="#impl-Freeze-for-EdfWriter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Freeze.html" title="trait core::marker::Freeze">Freeze</a> for <a class="struct" href="struct.EdfWriter.html" title="struct edfplus::writer::EdfWriter">EdfWriter</a></h3></section><section id="impl-RefUnwindSafe-for-EdfWriter" class="impl"><a href="#impl-RefUnwindSafe-for-EdfWriter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/panic/unwind_safe/trait.RefUnwindSafe.html" title="trait core::panic::unwind_safe::RefUnwindSafe">RefUnwindSafe</a> for <a class="struct" href="struct.EdfWriter.html" title="struct edfplus::writer::EdfWriter">EdfWriter</a></h3></section><section id="impl-Send-for-EdfWriter" class="impl"><a href="#impl-Send-for-EdfWriter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="struct.EdfWriter.html" title="struct edfplus::writer::EdfWriter">EdfWriter</a></h3></section><section id="impl-Sync-for-EdfWriter" class="impl"><a href="#impl-Sync-for-EdfWriter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="struct.EdfWriter.html" title="struct edfplus::writer::EdfWriter">EdfWriter</a></h3></section><section id="impl-Unpin-for-EdfWriter" class="impl"><a href="#impl-Unpin-for-EdfWriter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Unpin.html" title="trait core::marker::Unpin">Unpin</a> for <a class="struct" href="struct.EdfWriter.html" title="struct edfplus::writer::EdfWriter">EdfWriter</a></h3></section><section id="impl-UnwindSafe-for-EdfWriter" class="impl"><a href="#impl-UnwindSafe-for-EdfWriter" class="anchor">§</a><h3 class="code-header">impl <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/panic/unwind_safe/trait.UnwindSafe.html" title="trait core::panic::unwind_safe::UnwindSafe">UnwindSafe</a> for <a class="struct" href="struct.EdfWriter.html" title="struct edfplus::writer::EdfWriter">EdfWriter</a></h3></section></div><h2 id="blanket-implementations" class="section-header">Blanket Implementations<a href="#blanket-implementations" class="anchor">§</a></h2><div id="blanket-implementations-list"><details class="toggle implementors-toggle"><summary><section id="impl-Any-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/any.rs.html#138">Source</a><a href="#impl-Any-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/any/trait.Any.html" title="trait core::any::Any">Any</a> for T<div class="where">where
+    T: 'static + ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.type_id" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/any.rs.html#139">Source</a><a href="#method.type_id" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/any/trait.Any.html#tymethod.type_id" class="fn">type_id</a>(&amp;self) -&gt; <a class="struct" href="https://doc.rust-lang.org/1.87.0/core/any/struct.TypeId.html" title="struct core::any::TypeId">TypeId</a></h4></section></summary><div class='docblock'>Gets the <code>TypeId</code> of <code>self</code>. <a href="https://doc.rust-lang.org/1.87.0/core/any/trait.Any.html#tymethod.type_id">Read more</a></div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-Borrow%3CT%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#209">Source</a><a href="#impl-Borrow%3CT%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.Borrow.html" title="trait core::borrow::Borrow">Borrow</a>&lt;T&gt; for T<div class="where">where
+    T: ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.borrow" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#211">Source</a><a href="#method.borrow" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.Borrow.html#tymethod.borrow" class="fn">borrow</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.reference.html">&amp;T</a></h4></section></summary><div class='docblock'>Immutably borrows from an owned value. <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.Borrow.html#tymethod.borrow">Read more</a></div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-BorrowMut%3CT%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#217">Source</a><a href="#impl-BorrowMut%3CT%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.BorrowMut.html" title="trait core::borrow::BorrowMut">BorrowMut</a>&lt;T&gt; for T<div class="where">where
+    T: ?<a class="trait" href="https://doc.rust-lang.org/1.87.0/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.borrow_mut" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/borrow.rs.html#218">Source</a><a href="#method.borrow_mut" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.BorrowMut.html#tymethod.borrow_mut" class="fn">borrow_mut</a>(&amp;mut self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/1.87.0/std/primitive.reference.html">&amp;mut T</a></h4></section></summary><div class='docblock'>Mutably borrows from an owned value. <a href="https://doc.rust-lang.org/1.87.0/core/borrow/trait.BorrowMut.html#tymethod.borrow_mut">Read more</a></div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-From%3CT%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#767">Source</a><a href="#impl-From%3CT%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt; for T</h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.from" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#770">Source</a><a href="#method.from" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html#tymethod.from" class="fn">from</a>(t: T) -&gt; T</h4></section></summary><div class="docblock"><p>Returns the argument unchanged.</p>
+</div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-Into%3CU%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#750-752">Source</a><a href="#impl-Into%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><details class="toggle method-toggle" open><summary><section id="method.into" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#760">Source</a><a href="#method.into" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.Into.html#tymethod.into" class="fn">into</a>(self) -&gt; U</h4></section></summary><div class="docblock"><p>Calls <code>U::from(self)</code>.</p>
+<p>That is, this conversion is whatever the implementation of
+<code><a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;T&gt; for U</code> chooses to do.</p>
+</div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryFrom%3CU%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#806-808">Source</a><a href="#impl-TryFrom%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.Into.html" title="trait core::convert::Into">Into</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><details class="toggle" open><summary><section id="associatedtype.Error-1" class="associatedtype trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#810">Source</a><a href="#associatedtype.Error-1" class="anchor">§</a><h4 class="code-header">type <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" class="associatedtype">Error</a> = <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/convert/enum.Infallible.html" title="enum core::convert::Infallible">Infallible</a></h4></section></summary><div class='docblock'>The type returned in the event of a conversion error.</div></details><details class="toggle method-toggle" open><summary><section id="method.try_from" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#813">Source</a><a href="#method.try_from" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#tymethod.try_from" class="fn">try_from</a>(value: U) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;T, &lt;T as <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;U&gt;&gt;::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a>&gt;</h4></section></summary><div class='docblock'>Performs the conversion.</div></details></div></details><details class="toggle implementors-toggle"><summary><section id="impl-TryInto%3CU%3E-for-T" class="impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#791-793">Source</a><a href="#impl-TryInto%3CU%3E-for-T" class="anchor">§</a><h3 class="code-header">impl&lt;T, U&gt; <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryInto.html" title="trait core::convert::TryInto">TryInto</a>&lt;U&gt; for T<div class="where">where
+    U: <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;,</div></h3></section></summary><div class="impl-items"><details class="toggle" open><summary><section id="associatedtype.Error" class="associatedtype trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#795">Source</a><a href="#associatedtype.Error" class="anchor">§</a><h4 class="code-header">type <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryInto.html#associatedtype.Error" class="associatedtype">Error</a> = &lt;U as <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;&gt;::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a></h4></section></summary><div class='docblock'>The type returned in the event of a conversion error.</div></details><details class="toggle method-toggle" open><summary><section id="method.try_into" class="method trait-impl"><a class="src rightside" href="https://doc.rust-lang.org/1.87.0/src/core/convert/mod.rs.html#798">Source</a><a href="#method.try_into" class="anchor">§</a><h4 class="code-header">fn <a href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryInto.html#tymethod.try_into" class="fn">try_into</a>(self) -&gt; <a class="enum" href="https://doc.rust-lang.org/1.87.0/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;U, &lt;U as <a class="trait" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html" title="trait core::convert::TryFrom">TryFrom</a>&lt;T&gt;&gt;::<a class="associatedtype" href="https://doc.rust-lang.org/1.87.0/core/convert/trait.TryFrom.html#associatedtype.Error" title="type core::convert::TryFrom::Error">Error</a>&gt;</h4></section></summary><div class='docblock'>Performs the conversion.</div></details></div></details></div></section></div></main></body></html>

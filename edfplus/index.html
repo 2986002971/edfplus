@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="EDF+ Library for Rust"><title>edfplus - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../static.files/rustdoc-916cea96.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="edfplus" data-themes="" data-resource-suffix="" data-rustdoc-version="1.87.0 (17067e9ac 2025-05-09)" data-channel="1.87.0" data-search-js="search-e7298875.js" data-settings-js="settings-d72f25bb.js" ><script src="../static.files/storage-82c7156e.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-fb8c74a8.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-893ab5e7.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-6580c154.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-044be391.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../edfplus/index.html">edfplus</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#edf-library-for-rust" title="EDF+ Library for Rust">EDF+ Library for Rust</a><ul><li><a href="#quick-start" title="Quick Start">Quick Start</a></li><li><a href="#working-with-signal-data" title="Working with Signal Data">Working with Signal Data</a></li></ul></li></ul><h3><a href="#reexports">Crate Items</a></h3><ul class="block"><li><a href="#reexports" title="Re-exports">Re-exports</a></li><li><a href="#modules" title="Modules">Modules</a></li><li><a href="#constants" title="Constants">Constants</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <span>edfplus</span><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../src/edfplus/lib.rs.html#1-184">Source</a> </span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="edf-library-for-rust"><a class="doc-anchor" href="#edf-library-for-rust">§</a>EDF+ Library for Rust</h2>
+<p>A pure Rust library for reading and writing EDF+ (European Data Format Plus) files.
+This library focuses specifically on EDF+ format and provides a safe, efficient API.</p>
+<h3 id="quick-start"><a class="doc-anchor" href="#quick-start">§</a>Quick Start</h3><h4 id="reading-an-edf-file"><a class="doc-anchor" href="#reading-an-edf-file">§</a>Reading an EDF+ file</h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfReader, EdfWriter, SignalParam, <span class="prelude-ty">Result</span>};
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+ 
+    <span class="comment">// Open an EDF+ file
+    </span><span class="kw">let </span><span class="kw-2">mut </span>reader = EdfReader::open(<span class="string">"test_data.edf"</span>)<span class="question-mark">?</span>;
+     
+    <span class="comment">// Get file information
+    </span><span class="kw">let </span>header = reader.header();
+    <span class="macro">println!</span>(<span class="string">"Number of signals: {}"</span>, header.signals.len());
+    <span class="macro">println!</span>(<span class="string">"File duration: {:.2} seconds"</span>, 
+        header.file_duration <span class="kw">as </span>f64 / <span class="number">10_000_000.0</span>);
+     
+    <span class="comment">// Read first 1000 samples from signal 0
+    </span><span class="kw">if </span>!header.signals.is_empty() {
+        <span class="kw">let </span>samples = reader.read_physical_samples(<span class="number">0</span>, <span class="number">1000</span>)<span class="question-mark">?</span>;
+        <span class="macro">println!</span>(<span class="string">"Read {} samples"</span>, samples.len());
+    }
+     
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<h4 id="creating-an-edf-file"><a class="doc-anchor" href="#creating-an-edf-file">§</a>Creating an EDF+ file</h4>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::{EdfWriter, SignalParam, <span class="prelude-ty">Result</span>};
+
+<span class="kw">fn </span>main() -&gt; <span class="prelude-ty">Result</span>&lt;()&gt; {
+    <span class="comment">// Create a writer
+    </span><span class="kw">let </span><span class="kw-2">mut </span>writer = EdfWriter::create(<span class="string">"test_output.edf"</span>)<span class="question-mark">?</span>;
+     
+    <span class="comment">// Set patient information
+    </span>writer.set_patient_info(<span class="string">"P001"</span>, <span class="string">"M"</span>, <span class="string">"01-JAN-1990"</span>, <span class="string">"Patient Name"</span>)<span class="question-mark">?</span>;
+     
+    <span class="comment">// Define signal parameters
+    </span><span class="kw">let </span>signal = SignalParam {
+        label: <span class="string">"EEG Fp1"</span>.to_string(),
+        samples_in_file: <span class="number">0</span>,  <span class="comment">// Will be calculated automatically
+        </span>physical_max: <span class="number">200.0</span>,
+        physical_min: -<span class="number">200.0</span>,
+        digital_max: <span class="number">32767</span>,
+        digital_min: -<span class="number">32768</span>,
+        samples_per_record: <span class="number">256</span>,  <span class="comment">// Sample rate
+        </span>physical_dimension: <span class="string">"uV"</span>.to_string(),
+        prefilter: <span class="string">"HP:0.1Hz LP:70Hz"</span>.to_string(),
+        transducer: <span class="string">"AgAgCl cup electrodes"</span>.to_string(),
+    };
+     
+    <span class="comment">// Add the signal
+    </span>writer.add_signal(signal)<span class="question-mark">?</span>;
+     
+    <span class="comment">// Generate and write data
+    </span><span class="kw">let </span><span class="kw-2">mut </span>samples = Vec::new();
+    <span class="kw">for </span>i <span class="kw">in </span><span class="number">0</span>..<span class="number">256 </span>{
+        <span class="kw">let </span>t = i <span class="kw">as </span>f64 / <span class="number">256.0</span>;
+        <span class="kw">let </span>value = <span class="number">50.0 </span>* (<span class="number">2.0 </span>* std::f64::consts::PI * <span class="number">10.0 </span>* t).sin();
+        samples.push(value);
+    }
+     
+    writer.write_samples(<span class="kw-2">&amp;</span>[samples])<span class="question-mark">?</span>;
+    writer.finalize()<span class="question-mark">?</span>;
+     
+    <span class="prelude-val">Ok</span>(())
+}</code></pre></div>
+<h3 id="working-with-signal-data"><a class="doc-anchor" href="#working-with-signal-data">§</a>Working with Signal Data</h3><h4 id="physical-vs-digital-values"><a class="doc-anchor" href="#physical-vs-digital-values">§</a>Physical vs Digital Values</h4>
+<p>EDF+ stores data as 16-bit integers but represents real-world measurements.
+The library automatically handles conversion between digital and physical values:</p>
+
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>edfplus::SignalParam;
+
+<span class="kw">let </span>signal = SignalParam {
+    label: <span class="string">"Test Signal"</span>.to_string(),
+    samples_in_file: <span class="number">1000</span>,
+    physical_max: <span class="number">100.0</span>,   <span class="comment">// +100 µV
+    </span>physical_min: -<span class="number">100.0</span>,  <span class="comment">// -100 µV  
+    </span>digital_max: <span class="number">32767</span>,    <span class="comment">// +32767 (16-bit max)
+    </span>digital_min: -<span class="number">32768</span>,   <span class="comment">// -32768 (16-bit min)
+    </span>samples_per_record: <span class="number">256</span>,
+    physical_dimension: <span class="string">"uV"</span>.to_string(),
+    prefilter: <span class="string">""</span>.to_string(),
+    transducer: <span class="string">""</span>.to_string(),
+};
+
+<span class="comment">// Convert digital to physical
+</span><span class="kw">let </span>digital_value = <span class="number">16384</span>;  <span class="comment">// Half of max digital value
+</span><span class="kw">let </span>physical_value = signal.to_physical(digital_value);
+<span class="macro">assert!</span>((physical_value - <span class="number">50.0</span>).abs() &lt; <span class="number">0.1</span>); <span class="comment">// Should be ~50 µV
+
+// Convert physical to digital  
+</span><span class="kw">let </span>physical_input = <span class="number">25.0</span>;  <span class="comment">// 25 µV
+</span><span class="kw">let </span>digital_output = signal.to_digital(physical_input);
+<span class="macro">assert!</span>((digital_output - <span class="number">8192</span>).abs() &lt;= <span class="number">1</span>); <span class="comment">// Should be ~8192</span></code></pre></div>
+</div></details><h2 id="reexports" class="section-header">Re-exports<a href="#reexports" class="anchor">§</a></h2><dl class="item-table reexports"><dt id="reexport.EdfError"><code>pub use error::<a class="enum" href="error/enum.EdfError.html" title="enum edfplus::error::EdfError">EdfError</a>;</code></dt><dt id="reexport.Result"><code>pub use error::<a class="type" href="error/type.Result.html" title="type edfplus::error::Result">Result</a>;</code></dt><dt id="reexport.EdfHeader"><code>pub use types::<a class="struct" href="types/struct.EdfHeader.html" title="struct edfplus::types::EdfHeader">EdfHeader</a>;</code></dt><dt id="reexport.SignalParam"><code>pub use types::<a class="struct" href="types/struct.SignalParam.html" title="struct edfplus::types::SignalParam">SignalParam</a>;</code></dt><dt id="reexport.Annotation"><code>pub use types::<a class="struct" href="types/struct.Annotation.html" title="struct edfplus::types::Annotation">Annotation</a>;</code></dt><dt id="reexport.EdfReader"><code>pub use reader::<a class="struct" href="reader/struct.EdfReader.html" title="struct edfplus::reader::EdfReader">EdfReader</a>;</code></dt><dt id="reexport.EdfWriter"><code>pub use writer::<a class="struct" href="writer/struct.EdfWriter.html" title="struct edfplus::writer::EdfWriter">EdfWriter</a>;</code></dt></dl><h2 id="modules" class="section-header">Modules<a href="#modules" class="anchor">§</a></h2><dl class="item-table"><dt><a class="mod" href="error/index.html" title="mod edfplus::error">error</a></dt><dt><a class="mod" href="reader/index.html" title="mod edfplus::reader">reader</a></dt><dt><a class="mod" href="types/index.html" title="mod edfplus::types">types</a></dt><dt><a class="mod" href="utils/index.html" title="mod edfplus::utils">utils</a></dt><dt><a class="mod" href="writer/index.html" title="mod edfplus::writer">writer</a></dt></dl><h2 id="constants" class="section-header">Constants<a href="#constants" class="anchor">§</a></h2><dl class="item-table"><dt><a class="constant" href="constant.EDFLIB_MAXSIGNALS.html" title="constant edfplus::EDFLIB_MAXSIGNALS">EDFLIB_<wbr>MAXSIGNALS</a></dt><dt><a class="constant" href="constant.EDFLIB_MAX_ANNOTATION_LEN.html" title="constant edfplus::EDFLIB_MAX_ANNOTATION_LEN">EDFLIB_<wbr>MAX_<wbr>ANNOTATION_<wbr>LEN</a></dt><dt><a class="constant" href="constant.EDFLIB_TIME_DIMENSION.html" title="constant edfplus::EDFLIB_TIME_DIMENSION">EDFLIB_<wbr>TIME_<wbr>DIMENSION</a></dt></dl><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><dl class="item-table"><dt><a class="fn" href="fn.version.html" title="fn edfplus::version">version</a></dt><dd>Library version</dd></dl></section></div></main></body></html>
