@@ -1,5 +1,5 @@
 (function() {
-    var implementors = Object.fromEntries([["edfplus",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.87.0/core/marker/trait.StructuralPartialEq.html\" title=\"trait core::marker::StructuralPartialEq\">StructuralPartialEq</a> for <a class=\"enum\" href=\"edfplus/types/enum.FileType.html\" title=\"enum edfplus::types::FileType\">FileType</a>"]]]]);
+    var implementors = Object.fromEntries([["edfplus",[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.88.0/core/marker/trait.StructuralPartialEq.html\" title=\"trait core::marker::StructuralPartialEq\">StructuralPartialEq</a> for <a class=\"enum\" href=\"edfplus/types/enum.FileType.html\" title=\"enum edfplus::types::FileType\">FileType</a>"]]]]);
     if (window.register_implementors) {
         window.register_implementors(implementors);
     } else {
